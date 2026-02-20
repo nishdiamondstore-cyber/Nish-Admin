@@ -4,9 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Packages</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-
 <style>
 body{
 margin:0;
@@ -70,7 +67,17 @@ background:#000;
 border-radius:30px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 padding:15px;
+}
+
+.next-btn{
+background:#00ffcc;
+border:none;
+padding:10px 20px;
+border-radius:20px;
+font-weight:bold;
+cursor:pointer;
 }
 </style>
 </head>
@@ -84,6 +91,7 @@ padding:15px;
 
 <div class="bottom-bar">
 <div id="total">Total: 0 LKR</div>
+<button class="next-btn" onclick="goCheckout()">NEXT</button>
 </div>
 
 <script type="module">
@@ -118,15 +126,6 @@ alert("Wrong Password");
 }
 
 let sectionsRef = ref(db,"packages");
-
-onValue(sectionsRef,(snapshot)=>{
-let data=snapshot.val();
-if(data){
-render(data);
-}else{
-set(sectionsRef,defaultData);
-}
-});
 
 const defaultData=[
 
@@ -177,6 +176,15 @@ items:[
 }
 
 ];
+
+onValue(sectionsRef,(snapshot)=>{
+let data=snapshot.val();
+if(data){
+render(data);
+}else{
+set(sectionsRef,defaultData);
+}
+});
 
 let cart={};
 
@@ -246,6 +254,29 @@ index++;
 });
 });
 document.getElementById("total").innerText="Total: "+total+" LKR";
+},{onlyOnce:true});
+}
+
+window.goCheckout=function(){
+let selected=[];
+let index=0;
+
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data.forEach(section=>{
+section.items.forEach(item=>{
+if(cart[index]>0){
+selected.push({
+name:item[0],
+price:item[1],
+qty:cart[index]
+});
+}
+index++;
+});
+});
+localStorage.setItem("checkoutItems",JSON.stringify(selected));
+window.location.href="checkout.html";
 },{onlyOnce:true});
 }
 
