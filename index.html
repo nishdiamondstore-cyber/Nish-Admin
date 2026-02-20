@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NISH ADMIN</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(to bottom,#0f2027,#203a43,#2c5364);
+color:white;
+text-align:center;
+padding:20px;
+}
+
+.container{
+max-width:400px;
+margin:auto;
+background:rgba(0,0,0,0.4);
+padding:20px;
+border-radius:20px;
+border:3px solid #00ff00;
+}
+
+h1{
+color:#00e5ff;
+letter-spacing:2px;
+}
+
+.glow{
+font-size:28px;
+color:white;
+text-shadow:0 0 15px #00ffff;
+margin-bottom:10px;
+}
+
+input{
+width:90%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:10px;
+font-size:16px;
+}
+
+button{
+width:95%;
+padding:14px;
+margin:10px 0;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.login{
+background:#00ff99;
+color:black;
+}
+
+.topup{
+background:#00c3ff;
+color:black;
+display:none;
+}
+
+.contact{
+background:transparent;
+border:2px solid white;
+color:white;
+}
+
+.footer{
+color:#00ffcc;
+margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>NISH DIAMOND STORE</h2>
+<p>🚀 Delivery Within 10 Minutes</p>
+
+<div class="glow">NISH ADMIN</div>
+
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+
+<button class="login" onclick="login()">LOGIN</button>
+
+<button class="topup" id="topupBtn" onclick="openTopup()">TOP UP NOW</button>
+
+<button class="contact" onclick="contactAdmin()">CONTACT ADMIN</button>
+
+<div class="footer">Sri Lanka No 1 Diamond Seller</div>
+
+</div>
+
+<script>
+function login(){
+var user = document.getElementById("username").value;
+
+if(user !== ""){
+document.getElementById("topupBtn").style.display = "block";
+alert("Login Successful");
+}else{
+alert("Enter Username First");
+}
+}
+
+function openTopup(){
+alert("Top Up Page Opened!");
+// meka passe topup page ekakata redirect karanna puluwan
+}
+
+function contactAdmin(){
+window.open("https://wa.me/94762514994","_blank");
+}
+</script>
+
+</body>
+</html>
