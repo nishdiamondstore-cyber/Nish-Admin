@@ -11,161 +11,225 @@ font-family:Arial;
 background:linear-gradient(to bottom,#0f2027,#203a43,#2c5364);
 color:white;
 text-align:center;
-padding:40px 20px;
-}
-
-/* BOX STYLE */
-.container{
-max-width:500px;
-margin:auto;
-background:rgba(0,0,0,0.5);
 padding:30px;
-border-radius:25px;
-border:5px solid red;
-animation:borderColor 4s infinite linear;
-box-shadow:0 0 30px white;
+overflow-x:hidden;
 }
 
-@keyframes borderColor{
-0%{border-color:red;}
-25%{border-color:green;}
-50%{border-color:yellow;}
-75%{border-color:blue;}
-100%{border-color:red;}
-}
-
-/* TITLE */
-.mainTitle{
-font-size:40px;
+/* SUCCESS NOTIFICATION */
+.success-bar{
+position:fixed;
+top:-100px;
+left:50%;
+transform:translateX(-50%);
+background:#d4edda;
+color:#155724;
+padding:15px 20px;
+border-radius:12px;
+width:90%;
+max-width:400px;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+display:flex;
+justify-content:space-between;
+align-items:center;
+transition:0.5s;
+z-index:999;
 font-weight:bold;
+}
+
+.success-bar.show{
+top:20px;
+}
+
+.success-bar span{
+cursor:pointer;
+font-weight:bold;
+font-size:18px;
+}
+
+/* ANIMATED FRAME */
+body::before{
+content:"";
+position:fixed;
+top:5px; bottom:5px; left:5px; right:5px;
+border-radius:20px;
+border:4px solid;
+animation: frameColor 4s infinite;
+pointer-events:none;
+}
+
+@keyframes frameColor{
+0%{border-color:green;}
+25%{border-color:blue;}
+50%{border-color:red;}
+75%{border-color:yellow;}
+100%{border-color:green;}
+}
+
+/* STORE TITLE */
+.store-title{
+font-size:28px;
+font-weight:900;
+letter-spacing:3px;
 text-transform:uppercase;
-letter-spacing:2px;
+animation: colorChange 3s infinite alternate;
 margin-bottom:10px;
-animation:colorChange 3s infinite;
-text-shadow:0 0 25px #00ffff;
+}
+
+.delivery{
+font-size:16px;
+margin-bottom:25px;
+color:#ffffffcc;
+}
+
+.main-title{
+font-size:42px;
+font-weight:900;
+letter-spacing:4px;
+color:white;
+text-transform:uppercase;
+text-shadow:
+0 0 5px #ffffff,
+0 0 10px #00c6ff,
+0 0 20px #00c6ff,
+0 0 40px #00c6ff;
+margin-bottom:20px;
 }
 
 @keyframes colorChange{
-0%{color:#00ffff;}
-25%{color:#00ff00;}
-50%{color:#ff00ff;}
-75%{color:#ffff00;}
-100%{color:#00ffff;}
-}
-
-.glow{
-font-size:30px;
-text-shadow:0 0 20px #00ffff;
-margin-bottom:15px;
+0%{color:#00c6ff;}
+50%{color:#00ffcc;}
+100%{color:#00c6ff;}
 }
 
 input{
-width:95%;
-padding:15px;
-margin:12px 0;
+width:80%;
+padding:14px;
+margin:10px;
 border:none;
 border-radius:12px;
-font-size:18px;
+font-size:16px;
+}
+
+.showbtn{
+padding:10px 20px;
+border:none;
+border-radius:10px;
+background:#555;
+color:white;
+margin-top:5px;
 }
 
 button{
-width:100%;
+width:90%;
 padding:16px;
-margin:12px 0;
+margin:12px;
 border:none;
-border-radius:15px;
-font-size:18px;
+border-radius:14px;
+font-size:17px;
 font-weight:bold;
 cursor:pointer;
 }
 
-.login{ background:#00ff99; color:black; }
-.topup{ background:#00c3ff; color:black; }
+.loginbtn{
+background:#00ff99;
+color:black;
+}
+
+.topup{
+background:#00c6d7;
+color:black;
+}
+
 .contact{
 background:transparent;
 border:2px solid white;
 color:white;
 }
 
-.footer{
+.footer-text{
+margin-top:10px;
+font-size:14px;
 color:#00ffcc;
-margin-top:20px;
-font-size:18px;
-}
-
-/* DASHBOARD STYLE */
-.dashboard{
-display:none;
-animation:fadeIn 0.6s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0; transform:scale(0.9);}
-to{opacity:1; transform:scale(1);}
-}
-
-.card{
-background:#111;
-padding:15px;
-margin:10px 0;
-border-radius:15px;
-box-shadow:0 0 15px #00ffff;
-font-size:18px;
+font-weight:bold;
 }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<!-- LOGIN SECTION -->
-<div id="loginSection">
-<div class="mainTitle">NISH DIAMOND STORE</div>
-<p style="font-size:18px;">🚀 Delivery Within 10 Minutes</p>
-
-<div class="glow">ADMIN LOGIN</div>
-
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
-
-<button class="login" onclick="login()">LOGIN</button>
-
-<div class="footer">Sri Lanka No 1 Diamond Seller</div>
+<!-- SUCCESS BAR -->
+<div id="successBar" class="success-bar">
+<span>✅ Login Successfully!</span>
+<span onclick="closeBar()">✖</span>
 </div>
 
-<!-- DASHBOARD SECTION -->
-<div class="dashboard" id="dashboard">
+<div class="store-title">NISJ DIAMOND STORE</div>
+<div class="delivery">🚀 Delivery Within 10 Minutes</div>
 
-<div class="mainTitle">WELCOME ADMIN 🎉</div>
+<h1 class="main-title">KAVIYA ADMIN</h1>
+<p>Fast • Secure • Web owner - Admin Nish</p>
 
-<div class="card">💎 Total Orders : 125</div>
-<div class="card">📦 Pending Orders : 3</div>
-<div class="card">💰 Today Income : LKR 12,500</div>
+<input type="text" id="username" placeholder="Username"><br>
 
-<button class="topup" onclick="alert('Topup Page Opened')">OPEN TOPUP PAGE</button>
-<button class="contact" onclick="logout()">LOGOUT</button>
+<input type="password" id="password" placeholder="Password"><br>
+<button class="showbtn" onclick="togglePassword()">Show</button>
 
-</div>
+<button class="loginbtn" onclick="login()">LOGIN</button>
 
-</div>
+<button class="topup" onclick="goTopup()">TOP UP NOW</button>
+
+<button class="contact" onclick="contactAdmin()">CONTACT ADMIN</button>
+
+<div class="footer-text">Sri Lanka No 1 Diamond Seller</div>
 
 <script>
+let loggedIn = false;
+
+function togglePassword(){
+let pw = document.getElementById("password");
+pw.type = (pw.type === "password") ? "text" : "password";
+}
+
 function login(){
-var user = document.getElementById("username").value;
-var pass = document.getElementById("password").value;
+let username = document.getElementById("username").value;
+let password = document.getElementById("password").value;
 
-if(user === "ow" && pass === "2"){
-document.getElementById("loginSection").style.display="none";
-document.getElementById("dashboard").style.display="block";
-}else{
-alert("Wrong Username or Password ❌");
-}
+if(username === "" || password === ""){
+alert("Enter Username & Password");
+return;
 }
 
-function logout(){
-document.getElementById("dashboard").style.display="none";
-document.getElementById("loginSection").style.display="block";
+localStorage.setItem("savedUsername", username);
+localStorage.setItem("savedPassword", password);
+
+loggedIn = true;
+
+// SHOW SUCCESS BAR
+let bar = document.getElementById("successBar");
+bar.classList.add("show");
+
+// AUTO HIDE AFTER 3 SECONDS
+setTimeout(()=>{
+bar.classList.remove("show");
+},3000);
+}
+
+function closeBar(){
+document.getElementById("successBar").classList.remove("show");
+}
+
+function goTopup(){
+if(!loggedIn){
+alert("⚠️ Please first login");
+return;
+}
+location.href="store.html";
+}
+
+function contactAdmin(){
+let phone = "94762514994";
+let message = "Hello Admin, I need help.";
+let url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+window.open(url, "_blank");
 }
 </script>
 
