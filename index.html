@@ -15,7 +15,7 @@ padding:40px 20px;
 }
 
 .container{
-max-width:500px;   /* loku kala */
+max-width:500px;
 margin:auto;
 background:rgba(0,0,0,0.5);
 padding:30px;
@@ -33,11 +33,15 @@ box-shadow:0 0 30px white;
 100%{border-color:red;}
 }
 
-.title{
-font-size:30px;
+/* 🔥 MAIN STORE TITLE LOKU KARA */
+.mainTitle{
+font-size:40px;   /* loku kara */
 font-weight:bold;
+text-transform:uppercase;
+letter-spacing:2px;
+margin-bottom:10px;
 animation:colorChange 3s infinite;
-margin-bottom:5px;
+text-shadow:0 0 25px #00ffff;
 }
 
 @keyframes colorChange{
@@ -124,8 +128,8 @@ to{transform:scale(1);opacity:1;}
 🎉 LOGIN SUCCESSFULLY 🎉
 </div>
 
-<div class="title">NISH DIAMOND STORE</div>
-<p>🚀 Delivery Within 10 Minutes</p>
+<div class="mainTitle">NISH DIAMOND STORE</div>
+<p style="font-size:18px;">🚀 Delivery Within 10 Minutes</p>
 
 <div class="glow">NISH ADMIN</div>
 
@@ -149,7 +153,6 @@ function login(){
 var user = document.getElementById("username").value;
 var pass = document.getElementById("password").value;
 
-/* username = ow  password = 2 */
 if(user === "ow" && pass === "2"){
 isLoggedIn = true;
 document.getElementById("successBox").style.display="block";
