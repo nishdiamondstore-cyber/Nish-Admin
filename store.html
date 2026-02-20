@@ -4,6 +4,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Packages</title>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
 <style>
 body{
 margin:0;
@@ -24,55 +27,38 @@ border-radius:10px;
 z-index:999;
 }
 
-.admin-panel button{
-padding:6px 12px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-weight:bold;
-}
-
 .section{margin-bottom:40px;}
-.section h2{color:#00e0ff;font-size:22px;margin-bottom:20px;}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.section h2{color:#00e0ff;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
 
 .card{
 background:#0d1b3d;
-padding:20px;
-border-radius:20px;
+padding:15px;
+border-radius:15px;
 border:2px solid white;
-box-shadow:0 10px 25px rgba(0,0,0,0.4);
 text-align:center;
-transition:0.3s;
 }
 
 .price{
-font-size:16px;
-font-weight:bold;
-margin-bottom:15px;
-cursor:pointer;
 color:#00ffcc;
+font-weight:bold;
+cursor:pointer;
 }
 
 .counter{
 display:flex;
 justify-content:center;
-align-items:center;
-gap:15px;
-background:#08142e;
-padding:8px;
-border-radius:50px;
+gap:10px;
+margin-top:10px;
 }
 
 .counter button{
-background:#00c2d1;
+width:30px;
+height:30px;
 border:none;
-color:white;
-width:35px;
-height:35px;
 border-radius:50%;
-font-size:18px;
-cursor:pointer;
+background:#00c2d1;
+color:white;
 }
 
 .bottom-bar{
@@ -84,19 +70,7 @@ background:#000;
 border-radius:30px;
 display:flex;
 justify-content:space-between;
-align-items:center;
-padding:15px 20px;
-box-shadow:0 10px 30px rgba(0,0,0,0.6);
-}
-
-.next-btn{
-background:#00ffcc;
-color:black;
-border:none;
-padding:12px 28px;
-border-radius:30px;
-font-weight:bold;
-cursor:pointer;
+padding:15px;
 }
 </style>
 </head>
@@ -110,25 +84,51 @@ cursor:pointer;
 
 <div class="bottom-bar">
 <div id="total">Total: 0 LKR</div>
-<button class="next-btn">NEXT</button>
 </div>
 
-<script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAiZ-Tu007FfvaD-1xn4O6FpkBhijLQRA0",
+authDomain: "nish-store.firebaseapp.com",
+databaseURL: "https://nish-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId: "nish-store",
+storageBucket: "nish-store.firebasestorage.app",
+messagingSenderId: "391397321336",
+appId: "1:391397321336:web:d42bd399532e0b611f1b8d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 const ADMIN_PASS="Nish678@";
 let adminMode=false;
 
-function adminLogin(){
+window.adminLogin=function(){
 let pass=prompt("Enter Admin Password");
 if(pass===ADMIN_PASS){
 adminMode=true;
-alert("Admin Mode ON\nClick price to edit");
+alert("Admin Mode ON");
 }else{
 alert("Wrong Password");
 }
 }
 
-let sections=[
+let sectionsRef = ref(db,"packages");
+
+onValue(sectionsRef,(snapshot)=>{
+let data=snapshot.val();
+if(data){
+render(data);
+}else{
+set(sectionsRef,defaultData);
+}
+});
+
+const defaultData=[
 
 {
 title:"MEMBERSHIP",
@@ -178,25 +178,21 @@ items:[
 
 ];
 
-let container=document.getElementById("products");
 let cart={};
-let allItems=[];
+
+function render(sections){
+let container=document.getElementById("products");
+container.innerHTML="";
 let index=0;
 
-if(localStorage.getItem("prices")){
-sections=JSON.parse(localStorage.getItem("prices"));
-}
-
-sections.forEach(section=>{
+sections.forEach((section,sIndex)=>{
 container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
 
-section.items.forEach(item=>{
-allItems.push(item);
-
+section.items.forEach((item,iIndex)=>{
 container.innerHTML+=`
 <div class="card">
-<h3>${item[0]}</h3>
-<div class="price" onclick="editPrice(${index})" id="price${index}">
+<h4>${item[0]}</h4>
+<div class="price" onclick="editPrice(${sIndex},${iIndex})">
 LKR ${item[1]}
 </div>
 <div class="counter">
@@ -206,27 +202,28 @@ LKR ${item[1]}
 </div>
 </div>
 `;
-
 cart[index]=0;
 index++;
 });
 
 container.innerHTML+=`</div></div>`;
 });
+}
 
-function editPrice(i){
+window.editPrice=function(sIndex,iIndex){
 if(!adminMode) return;
 
 let newPrice=prompt("Enter new price:");
 if(newPrice && !isNaN(newPrice)){
-allItems[i][1]=parseInt(newPrice);
-document.getElementById("price"+i).innerText="LKR "+newPrice;
-localStorage.setItem("prices",JSON.stringify(sections));
-updateTotal();
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data[sIndex].items[iIndex][1]=parseInt(newPrice);
+set(sectionsRef,data);
+},{onlyOnce:true});
 }
 }
 
-function change(i,val){
+window.change=function(i,val){
 let q=document.getElementById("q"+i);
 let qty=parseInt(q.innerText);
 qty+=val;
@@ -238,14 +235,18 @@ updateTotal();
 
 function updateTotal(){
 let total=0;
-let i=0;
-sections.forEach(section=>{
+let index=0;
+
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data.forEach(section=>{
 section.items.forEach(item=>{
-total+=cart[i]*item[1];
-i++;
+total+=cart[index]*item[1];
+index++;
 });
 });
 document.getElementById("total").innerText="Total: "+total+" LKR";
+},{onlyOnce:true});
 }
 
 </script>
