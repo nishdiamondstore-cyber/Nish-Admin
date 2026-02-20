@@ -11,24 +11,18 @@ font-family:Arial;
 background:linear-gradient(to bottom,#0f2027,#203a43,#2c5364);
 color:white;
 text-align:center;
-padding:20px;
-animation:zoomIn 1s ease;
-}
-
-@keyframes zoomIn{
-from{transform:scale(0.8);opacity:0;}
-to{transform:scale(1);opacity:1;}
+padding:40px 20px;
 }
 
 .container{
-max-width:400px;
+max-width:500px;   /* loku kala */
 margin:auto;
-background:rgba(0,0,0,0.4);
-padding:20px;
-border-radius:20px;
-border:4px solid red;
+background:rgba(0,0,0,0.5);
+padding:30px;
+border-radius:25px;
+border:5px solid red;
 animation:borderColor 4s infinite linear;
-box-shadow:0 0 20px white;
+box-shadow:0 0 30px white;
 }
 
 @keyframes borderColor{
@@ -39,10 +33,11 @@ box-shadow:0 0 20px white;
 100%{border-color:red;}
 }
 
-.colorText{
-font-size:22px;
+.title{
+font-size:30px;
 font-weight:bold;
 animation:colorChange 3s infinite;
+margin-bottom:5px;
 }
 
 @keyframes colorChange{
@@ -54,28 +49,28 @@ animation:colorChange 3s infinite;
 }
 
 .glow{
-font-size:28px;
+font-size:32px;
 color:white;
-text-shadow:0 0 15px #00ffff;
-margin-bottom:10px;
+text-shadow:0 0 20px #00ffff;
+margin-bottom:15px;
 }
 
 input{
-width:90%;
-padding:12px;
-margin:10px 0;
+width:95%;
+padding:15px;
+margin:12px 0;
 border:none;
-border-radius:10px;
-font-size:16px;
+border-radius:12px;
+font-size:18px;
 }
 
 button{
-width:95%;
-padding:14px;
-margin:10px 0;
+width:100%;
+padding:16px;
+margin:12px 0;
 border:none;
-border-radius:12px;
-font-size:16px;
+border-radius:15px;
+font-size:18px;
 font-weight:bold;
 cursor:pointer;
 }
@@ -98,17 +93,25 @@ color:white;
 
 .footer{
 color:#00ffcc;
-margin-top:15px;
+margin-top:20px;
+font-size:18px;
 }
 
-.successMsg{
+.successBig{
+display:none;
 background:#00ff99;
 color:black;
-padding:10px;
-border-radius:10px;
-margin-bottom:10px;
-display:none;
+padding:15px;
+border-radius:15px;
+font-size:22px;
 font-weight:bold;
+margin-bottom:15px;
+animation:pop 0.5s ease;
+}
+
+@keyframes pop{
+from{transform:scale(0.5);opacity:0;}
+to{transform:scale(1);opacity:1;}
 }
 </style>
 </head>
@@ -117,11 +120,11 @@ font-weight:bold;
 
 <div class="container">
 
-<div class="successMsg" id="successBox">
-Login Successfully ✅
+<div class="successBig" id="successBox">
+🎉 LOGIN SUCCESSFULLY 🎉
 </div>
 
-<div class="colorText">NISH DIAMOND STORE</div>
+<div class="title">NISH DIAMOND STORE</div>
 <p>🚀 Delivery Within 10 Minutes</p>
 
 <div class="glow">NISH ADMIN</div>
@@ -144,12 +147,14 @@ let isLoggedIn = false;
 
 function login(){
 var user = document.getElementById("username").value;
+var pass = document.getElementById("password").value;
 
-if(user !== ""){
+/* username = ow  password = 2 */
+if(user === "ow" && pass === "2"){
 isLoggedIn = true;
 document.getElementById("successBox").style.display="block";
 }else{
-alert("Enter Username First");
+alert("Wrong Username or Password ❌");
 }
 }
 
