@@ -32,19 +32,21 @@ z-index:999;
 .admin-panel{
 display:none;
 position:fixed;
-top:60px;
+top:50px;
 right:10px;
 background:#111;
 padding:15px;
 border-radius:15px;
-width:220px;
+width:260px;
+max-height:400px;
+overflow:auto;
 box-shadow:0 0 20px red;
 z-index:999;
 }
 
 .admin-panel input{
 width:100%;
-margin:5px 0;
+margin:4px 0;
 padding:5px;
 }
 
@@ -71,26 +73,6 @@ font-weight:bold;
 margin-bottom:15px;
 }
 
-.counter{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:15px;
-background:#08142e;
-padding:8px;
-border-radius:50px;
-}
-
-.counter button{
-background:#00c2d1;
-border:none;
-color:white;
-width:35px;
-height:35px;
-border-radius:50%;
-cursor:pointer;
-}
-
 .bottom-bar{
 position:fixed;
 bottom:10px;
@@ -105,16 +87,6 @@ padding:15px 20px;
 }
 
 .total{ font-size:18px; font-weight:bold; }
-
-.next-btn{
-background:black;
-color:white;
-border:3px solid green;
-padding:12px 28px;
-border-radius:30px;
-font-weight:bold;
-cursor:pointer;
-}
 </style>
 </head>
 <body>
@@ -122,51 +94,83 @@ cursor:pointer;
 <button class="admin-btn" onclick="openAdmin()">ADMIN ONLY</button>
 
 <div class="admin-panel" id="adminPanel">
-<h4>Edit Daiomed Prices</h4>
-<input type="number" id="p0" placeholder="25 💎 Price">
-<input type="number" id="p1" placeholder="50 💎 Price">
-<input type="number" id="p2" placeholder="75 💎 Price">
-<input type="number" id="p3" placeholder="100 💎 Price">
-<button onclick="savePrices()">SAVE</button>
+<h4>Edit Prices</h4>
+<div id="adminInputs"></div>
+<button onclick="savePrices()">SAVE ALL</button>
 </div>
 
 <div id="products"></div>
 
 <div class="bottom-bar">
-<div class="total" id="total">Total: 0 LKR</div>
-<button class="next-btn">NEXT</button>
+<div class="total" id="total">Packages Available</div>
 </div>
 
 <script>
 
-const sections = [
+/* ALL PRODUCTS */
+let sections = [
+
+{
+title:"MEMBERSHIP",
+items:[
+["WEEKLY LITE MEMBERSHIP",130],
+["WEEKLY MEMBERSHIP",520],
+["MONTHLY MEMBERSHIP",2560],
+["VIP MEMBERSHIP",3080],
+["VIP PLUS MEMBERSHIP",3210],
+["S VIP MEMBERSHIP",4640],
+["S VIP PLUS MEMBERSHIP",5160]
+]
+},
+
 {
 title:"DAIOMED PACK",
 items:[
-["25 💎",100],
-["50 💎",200],
-["75 💎",300],
-["100 💎",400]
+["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
+["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
+["520 💎",1580],["830 💎",2530],["1060 💎",3020],["2180 💎",6020],
+["3240 💎",9040],["5600 💎",14700],["6660 💎",17720],["8840 💎",23740],
+["11500 💎",31000],["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
+]
+},
+
+{
+title:"LEVEL UP PASS PACKAGE",
+items:[
+["LEVEL 6",180],
+["LEVEL 10",300],
+["LEVEL 15",300],
+["LEVEL 25",300],
+["LEVEL 25",300],
+["LEVEL 30",450]
+]
+},
+
+{
+title:"EVO ACCESS PACKAGE",
+items:[
+["EVO ACCESS — 3 DAY",200],
+["EVO ACCESS — 7 DAY",350],
+["EVO ACCESS — 30 DAY",900]
 ]
 }
+
 ];
 
-let container = document.getElementById("products");
-let cart = {};
-let index = 0;
-
 /* LOAD SAVED PRICES */
-let saved = JSON.parse(localStorage.getItem("diamondPrices"));
+let saved = JSON.parse(localStorage.getItem("allPrices"));
 if(saved){
-sections[0].items.forEach((item,i)=>{
-item[1] = saved[i];
+sections.forEach((sec,s)=>{
+sec.items.forEach((item,i)=>{
+item[1] = saved[s][i];
+});
 });
 }
 
 /* RENDER PRODUCTS */
 function render(){
+let container = document.getElementById("products");
 container.innerHTML="";
-index=0;
 
 sections.forEach(section=>{
 container.innerHTML += `<div class="section"><h2>${section.title}</h2><div class="grid">`;
@@ -176,15 +180,7 @@ container.innerHTML += `
 <div class="card">
 <h3>${item[0]}</h3>
 <div class="price">LKR ${item[1]}</div>
-<div class="counter">
-<button onclick="change(${index},-1)">-</button>
-<span id="q${index}">0</span>
-<button onclick="change(${index},1)">+</button>
-</div>
-</div>
-`;
-cart[index]=0;
-index++;
+</div>`;
 });
 
 container.innerHTML += `</div></div>`;
@@ -193,53 +189,48 @@ container.innerHTML += `</div></div>`;
 
 render();
 
-function change(i,val){
-let q=document.getElementById("q"+i);
-let qty=parseInt(q.innerText);
-qty+=val;
-if(qty<0) qty=0;
-q.innerText=qty;
-cart[i]=qty;
-updateTotal();
-}
-
-function updateTotal(){
-let total=0;
-let i=0;
-sections.forEach(section=>{
-section.items.forEach(item=>{
-total += cart[i]*item[1];
-i++;
-});
-});
-document.getElementById("total").innerText="Total: "+total+" LKR";
-}
-
 /* ADMIN LOGIN */
 function openAdmin(){
 let pw = prompt("Enter Admin Password:");
 if(pw === "Nish678@"){
 document.getElementById("adminPanel").style.display="block";
+loadAdminInputs();
 }else{
 alert("Wrong Password ❌");
 }
 }
 
-/* SAVE NEW PRICES */
-function savePrices(){
-let newPrices = [
-parseInt(document.getElementById("p0").value),
-parseInt(document.getElementById("p1").value),
-parseInt(document.getElementById("p2").value),
-parseInt(document.getElementById("p3").value)
-];
+/* LOAD ADMIN INPUTS */
+function loadAdminInputs(){
+let box=document.getElementById("adminInputs");
+box.innerHTML="";
 
-sections[0].items.forEach((item,i)=>{
-if(newPrices[i]) item[1]=newPrices[i];
+sections.forEach((sec,s)=>{
+box.innerHTML+=`<h5>${sec.title}</h5>`;
+sec.items.forEach((item,i)=>{
+box.innerHTML+=`
+<label>${item[0]}</label>
+<input type="number" id="p-${s}-${i}" value="${item[1]}">
+`;
+});
+});
+}
+
+/* SAVE ALL PRICES */
+function savePrices(){
+let newPrices=[];
+
+sections.forEach((sec,s)=>{
+newPrices[s]=[];
+sec.items.forEach((item,i)=>{
+let val=parseInt(document.getElementById(`p-${s}-${i}`).value);
+item[1]=val;
+newPrices[s][i]=val;
+});
 });
 
-localStorage.setItem("diamondPrices",JSON.stringify(newPrices));
-alert("Prices Updated ✅");
+localStorage.setItem("allPrices",JSON.stringify(newPrices));
+alert("All Prices Updated ✅");
 render();
 }
 
