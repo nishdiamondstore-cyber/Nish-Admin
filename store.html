@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packages</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(to bottom,#06142e,#020d1f);
+color:white;
+padding:15px;
+padding-bottom:120px;
+}
+
+.section{
+margin-bottom:40px;
+}
+
+.section h2{
+color:#00e0ff;
+font-size:22px;
+margin-bottom:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+}
+
+.card{
+background:#0d1b3d;
+padding:20px;
+border-radius:20px;
+border:2px solid white;
+box-shadow:0 10px 25px rgba(0,0,0,0.4);
+text-align:center;
+transition:0.3s;
+}
+
+.card:hover{
+box-shadow:0 0 20px rgba(255,255,255,0.7);
+transform:scale(1.03);
+}
+
+.card h3{
+font-size:14px;
+margin-bottom:10px;
+}
+
+.price{
+font-size:16px;
+font-weight:bold;
+margin-bottom:15px;
+}
+
+.counter{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:15px;
+background:#08142e;
+padding:8px;
+border-radius:50px;
+}
+
+.counter button{
+background:#00c2d1;
+border:none;
+color:white;
+width:35px;
+height:35px;
+border-radius:50%;
+font-size:18px;
+cursor:pointer;
+}
+
+.counter span{
+font-size:18px;
+}
+
+.bottom-bar{
+position:fixed;
+bottom:10px;
+left:10px;
+right:10px;
+background:#000;
+border-radius:30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.6);
+}
+
+.total{
+font-size:18px;
+font-weight:bold;
+}
+
+.next-btn{
+background:black;
+color:white;
+border:3px solid;
+padding:12px 28px;
+border-radius:30px;
+font-weight:bold;
+cursor:pointer;
+animation: borderMove 4s infinite;
+}
+
+@keyframes borderMove{
+0%{border-color:green;}
+25%{border-color:blue;}
+50%{border-color:red;}
+75%{border-color:yellow;}
+100%{border-color:green;}
+}
+
+.next-btn:hover{
+background:#00c2d1;
+color:black;
+}
+</style>
+</head>
+<body>
+
+<div id="products"></div>
+
+<div class="bottom-bar">
+<div class="total" id="total">Total: 0 LKR</div>
+<button class="next-btn" onclick="goCheckout()">NEXT</button>
+</div>
+
+<script>
+
+const sections = [
+
+{
+title:"MEMBERSHIP",
+items:[
+["WEEKLY LITE MEMBERSHIP",130],
+["WEEKLY MEMBERSHIP",520],
+["MONTHLY MEMBERSHIP",2560],
+["VIP MEMBERSHIP",3080],
+["VIP PLUS MEMBERSHIP",3210],
+["S VIP MEMBERSHIP",4640],
+["S VIP PLUS MEMBERSHIP",5160]
+]
+},
+
+{
+title:"DAIOMED PACK",
+items:[
+["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
+["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
+["520 💎",1580],["830 💎",2530],["1060 💎",3020],["2180 💎",6020],
+["3240 💎",9040],["5600 💎",14700],["6660 💎",17720],["8840 💎",23740],
+["11500 💎",31000],["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
+]
+},
+
+{
+title:"LEVEL UP PASS PACKAGE",
+items:[
+["LEVEL 6",180],
+["LEVEL 10",300],
+["LEVEL 15",300],
+["LEVEL 25",300],
+["LEVEL 25",300],
+["LEVEL 30",450]
+]
+},
+
+{
+title:"EVO ACCESS PACKAGE",
+items:[
+["EVO ACCESS — 3 DAY",200],
+["EVO ACCESS — 7 DAY",350],
+["EVO ACCESS — 30 DAY",900]
+]
+}
+
+];
+
+let container = document.getElementById("products");
+let cart = {};
+let index = 0;
+
+sections.forEach(section=>{
+container.innerHTML += `<div class="section"><h2>${section.title}</h2><div class="grid">`;
+
+section.items.forEach(item=>{
+container.innerHTML += `
+<div class="card">
+<h3>${item[0]}</h3>
+<div class="price">LKR ${item[1]}</div>
+<div class="counter">
+<button onclick="change(${index},-1)">-</button>
+<span id="q${index}">0</span>
+<button onclick="change(${index},1)">+</button>
+</div>
+</div>
+`;
+cart[index]=0;
+index++;
+});
+
+container.innerHTML += `</div></div>`;
+});
+
+function change(i,val){
+let q=document.getElementById("q"+i);
+let qty=parseInt(q.innerText);
+qty+=val;
+if(qty<0) qty=0;
+q.innerText=qty;
+cart[i]=qty;
+updateTotal();
+}
+
+function updateTotal(){
+let total=0;
+let i=0;
+
+sections.forEach(section=>{
+section.items.forEach(item=>{
+total += cart[i]*item[1];
+i++;
+});
+});
+
+document.getElementById("total").innerText="Total: "+total+" LKR";
+}
+
+/* 🔥 CHECK BEFORE GO CHECKOUT */
+function goCheckout(){
+
+let hasItem = false;
+
+for(let i in cart){
+if(cart[i] > 0){
+hasItem = true;
+break;
+}
+}
+
+if(!hasItem){
+alert("Please select top up pack!");
+return;
+}
+
+localStorage.setItem("cart",JSON.stringify(cart));
+localStorage.setItem("items",JSON.stringify(
+sections.flatMap(section => section.items)
+));
+
+location.href="checkout.html";
+}
+
+</script>
+
+</body>
+</html>
