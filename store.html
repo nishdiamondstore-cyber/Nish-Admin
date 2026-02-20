@@ -14,63 +14,69 @@ padding:15px;
 padding-bottom:120px;
 }
 
-/* ADMIN BUTTON */
 .admin-btn{
 position:fixed;
 top:10px;
 right:10px;
 background:red;
 color:white;
+padding:8px 15px;
 border:none;
-padding:6px 12px;
 border-radius:20px;
-font-size:12px;
 cursor:pointer;
+font-weight:bold;
 z-index:999;
 }
 
-.admin-panel{
-display:none;
-position:fixed;
-top:50px;
-right:10px;
-background:#111;
-padding:15px;
-border-radius:15px;
-width:260px;
-max-height:400px;
-overflow:auto;
-box-shadow:0 0 20px red;
-z-index:999;
-}
-
-.admin-panel input{
-width:100%;
-margin:4px 0;
-padding:5px;
-}
-
-.section{ margin-bottom:40px; }
-.section h2{ color:#00e0ff; font-size:22px; margin-bottom:20px; }
-
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:20px;
-}
+.section{margin-bottom:40px;}
+.section h2{color:#00e0ff;font-size:22px;margin-bottom:20px;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
 
 .card{
 background:#0d1b3d;
 padding:20px;
 border-radius:20px;
 border:2px solid white;
+box-shadow:0 10px 25px rgba(0,0,0,0.4);
 text-align:center;
+position:relative;
 }
 
-.price{
-font-size:16px;
-font-weight:bold;
-margin-bottom:15px;
+.edit-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:yellow;
+color:black;
+border:none;
+border-radius:10px;
+padding:3px 8px;
+font-size:12px;
+cursor:pointer;
+display:none;
+}
+
+.price{font-size:16px;font-weight:bold;margin-bottom:15px;}
+
+.counter{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:15px;
+background:#08142e;
+padding:8px;
+border-radius:50px;
+}
+
+.counter button{
+background:#00c2d1;
+border:none;
+color:white;
+width:35px;
+height:35px;
+border-radius:50%;
+font-size:18px;
+cursor:pointer;
 }
 
 .bottom-bar{
@@ -84,32 +90,64 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 padding:15px 20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.6);
 }
 
-.total{ font-size:18px; font-weight:bold; }
+.total{font-size:18px;font-weight:bold;}
+
+.next-btn{
+background:black;
+color:white;
+border:3px solid;
+padding:12px 28px;
+border-radius:30px;
+font-weight:bold;
+cursor:pointer;
+animation:borderMove 4s infinite;
+}
+
+@keyframes borderMove{
+0%{border-color:red;}
+25%{border-color:green;}
+50%{border-color:yellow;}
+75%{border-color:blue;}
+100%{border-color:red;}
+}
 </style>
 </head>
 <body>
 
-<button class="admin-btn" onclick="openAdmin()">ADMIN ONLY</button>
-
-<div class="admin-panel" id="adminPanel">
-<h4>Edit Prices</h4>
-<div id="adminInputs"></div>
-<button onclick="savePrices()">SAVE ALL</button>
-</div>
+<button class="admin-btn" onclick="adminLogin()">ADMIN ONLY</button>
 
 <div id="products"></div>
 
 <div class="bottom-bar">
-<div class="total" id="total">Packages Available</div>
+<div class="total" id="total">Total: 0 LKR</div>
+<button class="next-btn" onclick="goCheckout()">NEXT</button>
 </div>
 
-<script>
+<script type="module">
 
-/* ALL PRODUCTS */
-let sections = [
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+/* 🔥 PASTE YOUR FIREBASE CONFIG HERE */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DATABASE_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MSG_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let isAdmin=false;
+
+const sections=[
 {
 title:"MEMBERSHIP",
 items:[
@@ -122,7 +160,6 @@ items:[
 ["S VIP PLUS MEMBERSHIP",5160]
 ]
 },
-
 {
 title:"DAIOMED PACK",
 items:[
@@ -133,7 +170,6 @@ items:[
 ["11500 💎",31000],["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
 ]
 },
-
 {
 title:"LEVEL UP PASS PACKAGE",
 items:[
@@ -145,7 +181,6 @@ items:[
 ["LEVEL 30",450]
 ]
 },
-
 {
 title:"EVO ACCESS PACKAGE",
 items:[
@@ -154,87 +189,96 @@ items:[
 ["EVO ACCESS — 30 DAY",900]
 ]
 }
-
 ];
 
-/* LOAD SAVED PRICES */
-let saved = JSON.parse(localStorage.getItem("allPrices"));
-if(saved){
+let container=document.getElementById("products");
+let cart={};
+let index=0;
+
+/* 🔥 LIVE LOAD */
+onValue(ref(db,"prices"),snap=>{
+let data=snap.val();
+if(data){
 sections.forEach((sec,s)=>{
 sec.items.forEach((item,i)=>{
-item[1] = saved[s][i];
+item[1]=data[s][i];
 });
 });
 }
+render();
+});
 
-/* RENDER PRODUCTS */
 function render(){
-let container = document.getElementById("products");
 container.innerHTML="";
-
-sections.forEach(section=>{
-container.innerHTML += `<div class="section"><h2>${section.title}</h2><div class="grid">`;
-
-section.items.forEach(item=>{
-container.innerHTML += `
+index=0;
+sections.forEach((section,s)=>{
+container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
+section.items.forEach((item,i)=>{
+container.innerHTML+=`
 <div class="card">
+<button class="edit-btn" onclick="editPrice(${s},${i})">Edit</button>
 <h3>${item[0]}</h3>
 <div class="price">LKR ${item[1]}</div>
+<div class="counter">
+<button onclick="change(${index},-1)">-</button>
+<span id="q${index}">0</span>
+<button onclick="change(${index},1)">+</button>
+</div>
 </div>`;
+cart[index]=0;
+index++;
 });
-
-container.innerHTML += `</div></div>`;
+container.innerHTML+=`</div></div>`;
 });
 }
 
-render();
-
-/* ADMIN LOGIN */
-function openAdmin(){
-let pw = prompt("Enter Admin Password:");
-if(pw === "Nish678@"){
-document.getElementById("adminPanel").style.display="block";
-loadAdminInputs();
+window.adminLogin=function(){
+let pw=prompt("Enter Admin Password");
+if(pw==="Nish678@"){
+isAdmin=true;
+alert("Admin Login Success");
+document.querySelectorAll(".edit-btn").forEach(b=>b.style.display="block");
 }else{
-alert("Wrong Password ❌");
+alert("Wrong Password");
 }
 }
 
-/* LOAD ADMIN INPUTS */
-function loadAdminInputs(){
-let box=document.getElementById("adminInputs");
-box.innerHTML="";
-
-sections.forEach((sec,s)=>{
-box.innerHTML+=`<h5>${sec.title}</h5>`;
-sec.items.forEach((item,i)=>{
-box.innerHTML+=`
-<label>${item[0]}</label>
-<input type="number" id="p-${s}-${i}" value="${item[1]}">
-`;
-});
-});
+window.editPrice=function(s,i){
+if(!isAdmin)return;
+let newPrice=prompt("Enter New LKR Price");
+if(newPrice && !isNaN(newPrice)){
+sections[s].items[i][1]=parseInt(newPrice);
+let prices=sections.map(sec=>sec.items.map(it=>it[1]));
+set(ref(db,"prices"),prices);
+}
 }
 
-/* SAVE ALL PRICES */
-function savePrices(){
-let newPrices=[];
+window.change=function(i,val){
+let q=document.getElementById("q"+i);
+let qty=parseInt(q.innerText);
+qty+=val;
+if(qty<0)qty=0;
+q.innerText=qty;
+cart[i]=qty;
+updateTotal();
+}
 
-sections.forEach((sec,s)=>{
-newPrices[s]=[];
-sec.items.forEach((item,i)=>{
-let val=parseInt(document.getElementById(`p-${s}-${i}`).value);
-item[1]=val;
-newPrices[s][i]=val;
+function updateTotal(){
+let total=0;
+let i=0;
+sections.forEach(section=>{
+section.items.forEach(item=>{
+total+=cart[i]*item[1];
+i++;
 });
 });
+document.getElementById("total").innerText="Total: "+total+" LKR";
+}
 
-localStorage.setItem("allPrices",JSON.stringify(newPrices));
-alert("All Prices Updated ✅");
-render();
+window.goCheckout=function(){
+alert("Checkout Success");
 }
 
 </script>
-
 </body>
 </html>
