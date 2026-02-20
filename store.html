@@ -14,23 +14,21 @@ padding:15px;
 padding-bottom:120px;
 }
 
-.admin-btn{
-position:fixed;
-top:10px;
-right:10px;
-background:red;
-color:white;
-padding:8px 15px;
-border:none;
-border-radius:20px;
-cursor:pointer;
-font-weight:bold;
-z-index:999;
+.section{
+margin-bottom:40px;
 }
 
-.section{margin-bottom:40px;}
-.section h2{color:#00e0ff;font-size:22px;margin-bottom:20px;}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.section h2{
+color:#00e0ff;
+font-size:22px;
+margin-bottom:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+}
 
 .card{
 background:#0d1b3d;
@@ -39,24 +37,24 @@ border-radius:20px;
 border:2px solid white;
 box-shadow:0 10px 25px rgba(0,0,0,0.4);
 text-align:center;
-position:relative;
+transition:0.3s;
 }
 
-.edit-btn{
-position:absolute;
-top:10px;
-right:10px;
-background:yellow;
-color:black;
-border:none;
-border-radius:10px;
-padding:3px 8px;
-font-size:12px;
-cursor:pointer;
-display:none;
+.card:hover{
+box-shadow:0 0 20px rgba(255,255,255,0.7);
+transform:scale(1.03);
 }
 
-.price{font-size:16px;font-weight:bold;margin-bottom:15px;}
+.card h3{
+font-size:14px;
+margin-bottom:10px;
+}
+
+.price{
+font-size:16px;
+font-weight:bold;
+margin-bottom:15px;
+}
 
 .counter{
 display:flex;
@@ -79,6 +77,10 @@ font-size:18px;
 cursor:pointer;
 }
 
+.counter span{
+font-size:18px;
+}
+
 .bottom-bar{
 position:fixed;
 bottom:10px;
@@ -93,7 +95,10 @@ padding:15px 20px;
 box-shadow:0 10px 30px rgba(0,0,0,0.6);
 }
 
-.total{font-size:18px;font-weight:bold;}
+.total{
+font-size:18px;
+font-weight:bold;
+}
 
 .next-btn{
 background:black;
@@ -103,21 +108,24 @@ padding:12px 28px;
 border-radius:30px;
 font-weight:bold;
 cursor:pointer;
-animation:borderMove 4s infinite;
+animation: borderMove 4s infinite;
 }
 
 @keyframes borderMove{
-0%{border-color:red;}
-25%{border-color:green;}
-50%{border-color:yellow;}
-75%{border-color:blue;}
-100%{border-color:red;}
+0%{border-color:green;}
+25%{border-color:blue;}
+50%{border-color:red;}
+75%{border-color:yellow;}
+100%{border-color:green;}
+}
+
+.next-btn:hover{
+background:#00c2d1;
+color:black;
 }
 </style>
 </head>
 <body>
-
-<button class="admin-btn" onclick="adminLogin()">ADMIN ONLY</button>
 
 <div id="products"></div>
 
@@ -126,28 +134,10 @@ animation:borderMove 4s infinite;
 <button class="next-btn" onclick="goCheckout()">NEXT</button>
 </div>
 
-<script type="module">
+<script>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const sections = [
 
-/* 🔥 PASTE YOUR FIREBASE CONFIG HERE */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MSG_ID",
-  appId: "YOUR_APP_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let isAdmin=false;
-
-const sections=[
 {
 title:"MEMBERSHIP",
 items:[
@@ -160,6 +150,7 @@ items:[
 ["S VIP PLUS MEMBERSHIP",5160]
 ]
 },
+
 {
 title:"DAIOMED PACK",
 items:[
@@ -170,6 +161,7 @@ items:[
 ["11500 💎",31000],["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
 ]
 },
+
 {
 title:"LEVEL UP PASS PACKAGE",
 items:[
@@ -181,6 +173,7 @@ items:[
 ["LEVEL 30",450]
 ]
 },
+
 {
 title:"EVO ACCESS PACKAGE",
 items:[
@@ -189,34 +182,19 @@ items:[
 ["EVO ACCESS — 30 DAY",900]
 ]
 }
+
 ];
 
-let container=document.getElementById("products");
-let cart={};
-let index=0;
+let container = document.getElementById("products");
+let cart = {};
+let index = 0;
 
-/* 🔥 LIVE LOAD */
-onValue(ref(db,"prices"),snap=>{
-let data=snap.val();
-if(data){
-sections.forEach((sec,s)=>{
-sec.items.forEach((item,i)=>{
-item[1]=data[s][i];
-});
-});
-}
-render();
-});
+sections.forEach(section=>{
+container.innerHTML += `<div class="section"><h2>${section.title}</h2><div class="grid">`;
 
-function render(){
-container.innerHTML="";
-index=0;
-sections.forEach((section,s)=>{
-container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
-section.items.forEach((item,i)=>{
-container.innerHTML+=`
+section.items.forEach(item=>{
+container.innerHTML += `
 <div class="card">
-<button class="edit-btn" onclick="editPrice(${s},${i})">Edit</button>
 <h3>${item[0]}</h3>
 <div class="price">LKR ${item[1]}</div>
 <div class="counter">
@@ -224,40 +202,20 @@ container.innerHTML+=`
 <span id="q${index}">0</span>
 <button onclick="change(${index},1)">+</button>
 </div>
-</div>`;
+</div>
+`;
 cart[index]=0;
 index++;
 });
-container.innerHTML+=`</div></div>`;
+
+container.innerHTML += `</div></div>`;
 });
-}
 
-window.adminLogin=function(){
-let pw=prompt("Enter Admin Password");
-if(pw==="Nish678@"){
-isAdmin=true;
-alert("Admin Login Success");
-document.querySelectorAll(".edit-btn").forEach(b=>b.style.display="block");
-}else{
-alert("Wrong Password");
-}
-}
-
-window.editPrice=function(s,i){
-if(!isAdmin)return;
-let newPrice=prompt("Enter New LKR Price");
-if(newPrice && !isNaN(newPrice)){
-sections[s].items[i][1]=parseInt(newPrice);
-let prices=sections.map(sec=>sec.items.map(it=>it[1]));
-set(ref(db,"prices"),prices);
-}
-}
-
-window.change=function(i,val){
+function change(i,val){
 let q=document.getElementById("q"+i);
 let qty=parseInt(q.innerText);
 qty+=val;
-if(qty<0)qty=0;
+if(qty<0) qty=0;
 q.innerText=qty;
 cart[i]=qty;
 updateTotal();
@@ -266,19 +224,43 @@ updateTotal();
 function updateTotal(){
 let total=0;
 let i=0;
+
 sections.forEach(section=>{
 section.items.forEach(item=>{
-total+=cart[i]*item[1];
+total += cart[i]*item[1];
 i++;
 });
 });
+
 document.getElementById("total").innerText="Total: "+total+" LKR";
 }
 
-window.goCheckout=function(){
-alert("Checkout Success");
+/* 🔥 CHECK BEFORE GO CHECKOUT */
+function goCheckout(){
+
+let hasItem = false;
+
+for(let i in cart){
+if(cart[i] > 0){
+hasItem = true;
+break;
+}
+}
+
+if(!hasItem){
+alert("Please select top up pack!");
+return;
+}
+
+localStorage.setItem("cart",JSON.stringify(cart));
+localStorage.setItem("items",JSON.stringify(
+sections.flatMap(section => section.items)
+));
+
+location.href="checkout.html";
 }
 
 </script>
+
 </body>
 </html>
