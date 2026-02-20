@@ -14,6 +14,7 @@ text-align:center;
 padding:40px 20px;
 }
 
+/* BOX STYLE */
 .container{
 max-width:500px;
 margin:auto;
@@ -33,9 +34,9 @@ box-shadow:0 0 30px white;
 100%{border-color:red;}
 }
 
-/* 🔥 MAIN STORE TITLE LOKU KARA */
+/* TITLE */
 .mainTitle{
-font-size:40px;   /* loku kara */
+font-size:40px;
 font-weight:bold;
 text-transform:uppercase;
 letter-spacing:2px;
@@ -53,8 +54,7 @@ text-shadow:0 0 25px #00ffff;
 }
 
 .glow{
-font-size:32px;
-color:white;
+font-size:30px;
 text-shadow:0 0 20px #00ffff;
 margin-bottom:15px;
 }
@@ -79,16 +79,8 @@ font-weight:bold;
 cursor:pointer;
 }
 
-.login{
-background:#00ff99;
-color:black;
-}
-
-.topup{
-background:#00c3ff;
-color:black;
-}
-
+.login{ background:#00ff99; color:black; }
+.topup{ background:#00c3ff; color:black; }
 .contact{
 background:transparent;
 border:2px solid white;
@@ -101,21 +93,24 @@ margin-top:20px;
 font-size:18px;
 }
 
-.successBig{
+/* DASHBOARD STYLE */
+.dashboard{
 display:none;
-background:#00ff99;
-color:black;
-padding:15px;
-border-radius:15px;
-font-size:22px;
-font-weight:bold;
-margin-bottom:15px;
-animation:pop 0.5s ease;
+animation:fadeIn 0.6s ease;
 }
 
-@keyframes pop{
-from{transform:scale(0.5);opacity:0;}
-to{transform:scale(1);opacity:1;}
+@keyframes fadeIn{
+from{opacity:0; transform:scale(0.9);}
+to{opacity:1; transform:scale(1);}
+}
+
+.card{
+background:#111;
+padding:15px;
+margin:10px 0;
+border-radius:15px;
+box-shadow:0 0 15px #00ffff;
+font-size:18px;
 }
 </style>
 </head>
@@ -124,53 +119,53 @@ to{transform:scale(1);opacity:1;}
 
 <div class="container">
 
-<div class="successBig" id="successBox">
-🎉 LOGIN SUCCESSFULLY 🎉
-</div>
-
+<!-- LOGIN SECTION -->
+<div id="loginSection">
 <div class="mainTitle">NISH DIAMOND STORE</div>
 <p style="font-size:18px;">🚀 Delivery Within 10 Minutes</p>
 
-<div class="glow">NISH ADMIN</div>
+<div class="glow">ADMIN LOGIN</div>
 
 <input type="text" id="username" placeholder="Username">
 <input type="password" id="password" placeholder="Password">
 
 <button class="login" onclick="login()">LOGIN</button>
 
-<button class="topup" onclick="openTopup()">TOP UP NOW</button>
-
-<button class="contact" onclick="contactAdmin()">CONTACT ADMIN</button>
-
 <div class="footer">Sri Lanka No 1 Diamond Seller</div>
+</div>
+
+<!-- DASHBOARD SECTION -->
+<div class="dashboard" id="dashboard">
+
+<div class="mainTitle">WELCOME ADMIN 🎉</div>
+
+<div class="card">💎 Total Orders : 125</div>
+<div class="card">📦 Pending Orders : 3</div>
+<div class="card">💰 Today Income : LKR 12,500</div>
+
+<button class="topup" onclick="alert('Topup Page Opened')">OPEN TOPUP PAGE</button>
+<button class="contact" onclick="logout()">LOGOUT</button>
+
+</div>
 
 </div>
 
 <script>
-let isLoggedIn = false;
-
 function login(){
 var user = document.getElementById("username").value;
 var pass = document.getElementById("password").value;
 
 if(user === "ow" && pass === "2"){
-isLoggedIn = true;
-document.getElementById("successBox").style.display="block";
+document.getElementById("loginSection").style.display="none";
+document.getElementById("dashboard").style.display="block";
 }else{
 alert("Wrong Username or Password ❌");
 }
 }
 
-function openTopup(){
-if(!isLoggedIn){
-alert("Please First Login ❗");
-}else{
-alert("Top Up Page Opened!");
-}
-}
-
-function contactAdmin(){
-window.open("https://wa.me/94762514994?text=Hello%20Admin%20I%20need%20help","_blank");
+function logout(){
+document.getElementById("dashboard").style.display="none";
+document.getElementById("loginSection").style.display="block";
 }
 </script>
 
