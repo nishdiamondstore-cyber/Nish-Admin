@@ -12,10 +12,8 @@ background:linear-gradient(to bottom,#06142e,#020d1f);
 color:white;
 padding:15px;
 padding-bottom:140px;
-transition:0.3s;
 }
 
-/* ADMIN PANEL */
 .admin-panel{
 position:fixed;
 top:10px;
@@ -27,15 +25,12 @@ z-index:999;
 }
 
 .admin-panel button{
-margin:3px;
-padding:5px 10px;
+padding:6px 12px;
 border:none;
 border-radius:6px;
 cursor:pointer;
 font-weight:bold;
 }
-
-.hidden{display:none;}
 
 .section{margin-bottom:40px;}
 .section h2{color:#00e0ff;font-size:22px;margin-bottom:20px;}
@@ -51,12 +46,13 @@ text-align:center;
 transition:0.3s;
 }
 
-.card:hover{
-box-shadow:0 0 20px rgba(255,255,255,0.7);
-transform:scale(1.03);
+.price{
+font-size:16px;
+font-weight:bold;
+margin-bottom:15px;
+cursor:pointer;
+color:#00ffcc;
 }
-
-.price{font-size:16px;font-weight:bold;margin-bottom:15px;}
 
 .counter{
 display:flex;
@@ -94,82 +90,45 @@ box-shadow:0 10px 30px rgba(0,0,0,0.6);
 }
 
 .next-btn{
-background:black;
-color:white;
-border:3px solid;
+background:#00ffcc;
+color:black;
+border:none;
 padding:12px 28px;
 border-radius:30px;
 font-weight:bold;
 cursor:pointer;
-animation:borderMove 4s infinite;
-}
-
-@keyframes borderMove{
-0%{border-color:green;}
-25%{border-color:blue;}
-50%{border-color:red;}
-75%{border-color:yellow;}
-100%{border-color:green;}
 }
 </style>
 </head>
 <body>
 
-<!-- ADMIN -->
 <div class="admin-panel">
 <button onclick="adminLogin()">Admin</button>
-<div id="colorOptions" class="hidden">
-<button onclick="setTheme('red')" style="background:red;">Red</button>
-<button onclick="setTheme('green')" style="background:green;">Green</button>
-<button onclick="setTheme('yellow')" style="background:gold;">Yellow</button>
-<button onclick="setTheme('blue')" style="background:blue;">Blue</button>
-</div>
 </div>
 
 <div id="products"></div>
 
 <div class="bottom-bar">
 <div id="total">Total: 0 LKR</div>
-<button class="next-btn" onclick="goCheckout()">NEXT</button>
+<button class="next-btn">NEXT</button>
 </div>
 
 <script>
 
-/* 🔐 ADMIN PASSWORD UPDATED */
 const ADMIN_PASS="Nish678@";
+let adminMode=false;
 
 function adminLogin(){
 let pass=prompt("Enter Admin Password");
 if(pass===ADMIN_PASS){
-document.getElementById("colorOptions").classList.remove("hidden");
-alert("Admin Mode ON");
+adminMode=true;
+alert("Admin Mode ON\nClick price to edit");
 }else{
 alert("Wrong Password");
 }
 }
 
-function setTheme(color){
-if(color=="red"){
-document.body.style.background="linear-gradient(to bottom,#2e0606,#1f0202)";
-}
-if(color=="green"){
-document.body.style.background="linear-gradient(to bottom,#062e0f,#021f09)";
-}
-if(color=="yellow"){
-document.body.style.background="linear-gradient(to bottom,#2e2a06,#1f1b02)";
-}
-if(color=="blue"){
-document.body.style.background="linear-gradient(to bottom,#06142e,#020d1f)";
-}
-localStorage.setItem("theme",color);
-}
-
-window.onload=function(){
-let saved=localStorage.getItem("theme");
-if(saved) setTheme(saved);
-};
-
-const sections=[
+let sections=[
 
 {
 title:"MEMBERSHIP",
@@ -190,8 +149,9 @@ items:[
 ["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
 ["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
 ["520 💎",1580],["830 💎",2530],["1060 💎",3020],["2180 💎",6020],
-["3240 💎",9040],["5600 💎",14700],["6660 💎",17720],["8840 💎",23740],
-["11500 💎",31000],["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
+["3240 💎",9040],["5600 💎",14700],["6660 💎",17720],
+["8840 💎",23740],["11500 💎",31000],["15500 💎",41460],
+["23000 💎",61000],["46000 💎",124000]
 ]
 },
 
@@ -220,16 +180,25 @@ items:[
 
 let container=document.getElementById("products");
 let cart={};
+let allItems=[];
 let index=0;
+
+if(localStorage.getItem("prices")){
+sections=JSON.parse(localStorage.getItem("prices"));
+}
 
 sections.forEach(section=>{
 container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
 
 section.items.forEach(item=>{
+allItems.push(item);
+
 container.innerHTML+=`
 <div class="card">
 <h3>${item[0]}</h3>
-<div class="price">LKR ${item[1]}</div>
+<div class="price" onclick="editPrice(${index})" id="price${index}">
+LKR ${item[1]}
+</div>
 <div class="counter">
 <button onclick="change(${index},-1)">-</button>
 <span id="q${index}">0</span>
@@ -237,12 +206,25 @@ container.innerHTML+=`
 </div>
 </div>
 `;
+
 cart[index]=0;
 index++;
 });
 
 container.innerHTML+=`</div></div>`;
 });
+
+function editPrice(i){
+if(!adminMode) return;
+
+let newPrice=prompt("Enter new price:");
+if(newPrice && !isNaN(newPrice)){
+allItems[i][1]=parseInt(newPrice);
+document.getElementById("price"+i).innerText="LKR "+newPrice;
+localStorage.setItem("prices",JSON.stringify(sections));
+updateTotal();
+}
+}
 
 function change(i,val){
 let q=document.getElementById("q"+i);
@@ -264,22 +246,6 @@ i++;
 });
 });
 document.getElementById("total").innerText="Total: "+total+" LKR";
-}
-
-function goCheckout(){
-let hasItem=false;
-for(let i in cart){
-if(cart[i]>0){hasItem=true;break;}
-}
-if(!hasItem){
-alert("Please select top up pack!");
-return;
-}
-localStorage.setItem("cart",JSON.stringify(cart));
-localStorage.setItem("items",JSON.stringify(
-sections.flatMap(section=>section.items)
-));
-location.href="checkout.html";
 }
 
 </script>
