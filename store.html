@@ -121,13 +121,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyAiZ-Tu007FfvaD-1xn4O6FpkBhijLQRA0",
-authDomain: "nish-store.firebaseapp.com",
-databaseURL: "https://nish-store-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId: "nish-store",
-storageBucket: "nish-store.firebasestorage.app",
-messagingSenderId: "391397321336",
-appId: "1:391397321336:web:d42bd399532e0b611f1b8d"
+apiKey: "YOUR_API_KEY",
+authDomain: "YOUR_AUTH_DOMAIN",
+databaseURL: "YOUR_DATABASE_URL",
+projectId: "YOUR_PROJECT_ID",
+storageBucket: "YOUR_BUCKET",
+messagingSenderId: "YOUR_SENDER_ID",
+appId: "YOUR_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -167,12 +167,7 @@ items:[
 {
 title:"DAIOMED PACK",
 items:[
-["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
-["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
-["520 💎",1580],["830 💎",2530],["1060 💎",3020],["2180 💎",6020],
-["3240 💎",9040],["5600 💎",14700],["6660 💎",17720],
-["8840 💎",23740],["11500 💎",31000],["15500 💎",41460],
-["23000 💎",61000],["46000 💎",124000]
+["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400]
 ]
 },
 
@@ -208,8 +203,10 @@ set(sectionsRef,defaultData);
 });
 
 let cart={};
+let currentData=[];
 
 function render(sections){
+currentData=sections;
 let container=document.getElementById("products");
 container.innerHTML="";
 let index=0;
@@ -243,11 +240,8 @@ window.editPrice=function(sIndex,iIndex){
 if(!adminMode) return;
 let newPrice=prompt("Enter new price:");
 if(newPrice && !isNaN(newPrice)){
-get(sectionsRef).then((snap)=>{
-let data=snap.val();
-data[sIndex].items[iIndex][1]=parseInt(newPrice);
-set(sectionsRef,data);
-});
+currentData[sIndex].items[iIndex][1]=parseInt(newPrice);
+set(sectionsRef,currentData);
 }
 }
 
@@ -265,16 +259,14 @@ function updateTotal(){
 let total=0;
 let index=0;
 
-get(sectionsRef).then((snap)=>{
-let data=snap.val();
-data.forEach(section=>{
+currentData.forEach(section=>{
 section.items.forEach(item=>{
 total+=cart[index]*item[1];
 index++;
 });
 });
+
 document.getElementById("total").innerText="Total: "+total+" LKR";
-});
 }
 
 window.goCheckout=function(){
@@ -284,10 +276,7 @@ let index=0;
 let membershipSelected=false;
 let daiomedSelected=false;
 
-get(sectionsRef).then((snap)=>{
-let data=snap.val();
-
-data.forEach((section,sIndex)=>{
+currentData.forEach((section,sIndex)=>{
 section.items.forEach(item=>{
 if(cart[index] > 0){
 selected.push({
@@ -314,8 +303,6 @@ return;
 
 localStorage.setItem("checkoutItems",JSON.stringify(selected));
 window.location.href="checkout.html";
-
-});
 }
 
 </script>
