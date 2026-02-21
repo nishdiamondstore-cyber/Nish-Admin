@@ -19,26 +19,9 @@ position:fixed;
 top:10px;
 right:10px;
 background:#000;
-padding:10px 15px;
-border-radius:12px;
+padding:10px;
+border-radius:10px;
 z-index:999;
-box-shadow:0 0 10px #00ffff;
-}
-
-.admin-panel button{
-background:#00ffcc;
-border:none;
-padding:6px 12px;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.admin-status{
-margin-top:5px;
-font-size:12px;
-color:#00ff00;
-display:none;
 }
 
 .section{margin-bottom:40px;}
@@ -73,8 +56,6 @@ border:none;
 border-radius:50%;
 background:#00c2d1;
 color:white;
-font-weight:bold;
-cursor:pointer;
 }
 
 .bottom-bar{
@@ -88,7 +69,6 @@ display:flex;
 justify-content:space-between;
 align-items:center;
 padding:15px;
-box-shadow:0 0 10px #00ffff;
 }
 
 .next-btn{
@@ -99,13 +79,26 @@ border-radius:20px;
 font-weight:bold;
 cursor:pointer;
 }
+
+.alert-box{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#111;
+padding:20px;
+border-radius:15px;
+border:2px solid #00ffcc;
+display:none;
+z-index:1000;
+text-align:center;
+}
 </style>
 </head>
 <body>
 
 <div class="admin-panel">
-<button onclick="adminLogin()">Admin Login</button>
-<div class="admin-status" id="adminStatus">ADMIN MODE ON</div>
+<button onclick="adminLogin()">Admin</button>
 </div>
 
 <div id="products"></div>
@@ -113,6 +106,11 @@ cursor:pointer;
 <div class="bottom-bar">
 <div id="total">Total: 0 LKR</div>
 <button class="next-btn" onclick="goCheckout()">NEXT</button>
+</div>
+
+<div class="alert-box" id="alertBox">
+<p>Please select at least one package</p>
+<button onclick="closeAlert()">OK</button>
 </div>
 
 <script type="module">
@@ -123,10 +121,10 @@ import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebase
 const firebaseConfig = {
 apiKey: "YOUR_API_KEY",
 authDomain: "YOUR_AUTH_DOMAIN",
-databaseURL: "YOUR_DATABASE_URL",
+databaseURL: "YOUR_DB_URL",
 projectId: "YOUR_PROJECT_ID",
 storageBucket: "YOUR_BUCKET",
-messagingSenderId: "YOUR_SENDER_ID",
+messagingSenderId: "YOUR_MSG_ID",
 appId: "YOUR_APP_ID"
 };
 
@@ -140,8 +138,7 @@ window.adminLogin=function(){
 let pass=prompt("Enter Admin Password");
 if(pass===ADMIN_PASS){
 adminMode=true;
-document.getElementById("adminStatus").style.display="block";
-alert("Admin Mode Activated");
+alert("Admin Mode ON");
 }else{
 alert("Wrong Password");
 }
@@ -149,63 +146,16 @@ alert("Wrong Password");
 
 let sectionsRef = ref(db,"packages");
 
-const defaultData=[
-
-{
-title:"MEMBERSHIP",
-items:[
-["WEEKLY LITE MEMBERSHIP",130],
-["WEEKLY MEMBERSHIP",520],
-["MONTHLY MEMBERSHIP",2560],
-["VIP MEMBERSHIP",3080]
-]
-},
-
-{
-title:"DAIOMED PACK",
-items:[
-["25 💎",100],
-["50 💎",200],
-["75 💎",300],
-["100 💎",400]
-]
-},
-
-{
-title:"LEVEL UP PASS PACKAGE",
-items:[
-["LEVEL 6",180],
-["LEVEL 10",300],
-["LEVEL 15",300],
-["LEVEL 25",300]
-]
-},
-
-{
-title:"EVO ACCESS PACKAGE",
-items:[
-["EVO ACCESS — 3 DAY",200],
-["EVO ACCESS — 7 DAY",350],
-["EVO ACCESS — 30 DAY",900]
-]
-}
-
-];
+let cart={};
 
 onValue(sectionsRef,(snapshot)=>{
 let data=snapshot.val();
 if(data){
 render(data);
-}else{
-set(sectionsRef,defaultData);
 }
 });
 
-let cart={};
-let currentData=[];
-
 function render(sections){
-currentData=sections;
 let container=document.getElementById("products");
 container.innerHTML="";
 let index=0;
@@ -237,10 +187,14 @@ container.innerHTML+=`</div></div>`;
 
 window.editPrice=function(sIndex,iIndex){
 if(!adminMode) return;
+
 let newPrice=prompt("Enter new price:");
 if(newPrice && !isNaN(newPrice)){
-currentData[sIndex].items[iIndex][1]=parseInt(newPrice);
-set(sectionsRef,currentData);
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data[sIndex].items[iIndex][1]=parseInt(newPrice);
+set(sectionsRef,data);
+},{onlyOnce:true});
 }
 }
 
@@ -258,41 +212,38 @@ function updateTotal(){
 let total=0;
 let index=0;
 
-currentData.forEach(section=>{
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data.forEach(section=>{
 section.items.forEach(item=>{
 total+=cart[index]*item[1];
 index++;
 });
 });
-
 document.getElementById("total").innerText="Total: "+total+" LKR";
+},{onlyOnce:true});
 }
 
 window.goCheckout=function(){
-
-let selected=[];
-let index=0;
-
-currentData.forEach(section=>{
-section.items.forEach(item=>{
-if(cart[index] > 0){
-selected.push({
-name:item[0],
-price:item[1],
-qty:cart[index]
-});
+let hasItem=false;
+for(let key in cart){
+if(cart[key]>0){
+hasItem=true;
+break;
 }
-index++;
-});
-});
+}
 
-if(selected.length===0){
-alert("Please select at least one package");
+if(!hasItem){
+document.getElementById("alertBox").style.display="block";
 return;
 }
 
-localStorage.setItem("checkoutItems",JSON.stringify(selected));
+// if selected → go next page
 window.location.href="checkout.html";
+}
+
+window.closeAlert=function(){
+document.getElementById("alertBox").style.display="none";
 }
 
 </script>
