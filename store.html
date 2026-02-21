@@ -164,7 +164,10 @@ items:[
 {
 title:"DAIOMED PACK",
 items:[
-["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400]
+["25 💎",100],
+["50 💎",200],
+["75 💎",300],
+["100 💎",400]
 ]
 },
 
@@ -269,9 +272,8 @@ window.goCheckout=function(){
 
 let selected=[];
 let index=0;
-let membershipSelected=false;
 
-currentData.forEach((section,sIndex)=>{
+currentData.forEach(section=>{
 section.items.forEach(item=>{
 if(cart[index] > 0){
 selected.push({
@@ -279,14 +281,13 @@ name:item[0],
 price:item[1],
 qty:cart[index]
 });
-if(sIndex===0) membershipSelected=true;
 }
 index++;
 });
 });
 
-if(!membershipSelected){
-alert("Please select Membership Package");
+if(selected.length===0){
+alert("Please select at least one package");
 return;
 }
 
