@@ -154,18 +154,42 @@ let name=document.getElementById("playerName").value.trim();
 let id=document.getElementById("playerId").value.trim();
 let wp=document.getElementById("whatsapp").value.trim();
 
+function contactAdmin(){
+
+let name=document.getElementById("playerName").value.trim();
+let id=document.getElementById("playerId").value.trim();
+let wp=document.getElementById("whatsapp").value.trim();
+
+/* WhatsApp international format */
+if(wp.startsWith("0")){
+wp="94"+wp.substring(1);
+}
+
 let fullMessage =
 "🛒 *ORDER CONFIRMATION*\n\n"+
 "🆔 Order ID: "+lastOrderId+"\n"+
 "👤 Name: "+name+"\n"+
 "🎮 Player ID: "+id+"\n"+
-"📲 Customer WhatsApp: "+wp+"\n";
+"📲 Customer WhatsApp: https://wa.me/"+wp+"\n\n";
 
+/* 🔥 Selected Products Auto Add */
+let total=0;
+
+for(let i in cart){
+if(cart[i]>0){
+let lineTotal = items[i][1] * cart[i];
+fullMessage += items[i][0]+" x "+cart[i]+" = "+lineTotal+" LKR\n";
+total += lineTotal;
+}
+}
+
+fullMessage += "\n💰 *Total:* "+total+" LKR (+20 EZ Fee)";
+
+/* Open WhatsApp */
 window.location.href =
 "https://wa.me/94762514994?text="+encodeURIComponent(fullMessage);
 
 }
-
 </script>
 
 </body>
