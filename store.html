@@ -2,70 +2,108 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KAVIYA PACKAGES</title>
+<title>KAVIYA STORE</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:linear-gradient(to bottom,#06142e,#020d1f);
+font-family:Arial, sans-serif;
+background:linear-gradient(135deg,#06142e,#020d1f);
 color:white;
 padding:15px;
-padding-bottom:140px;
+padding-bottom:150px;
+}
+
+/* HEADER */
+.header{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-bottom:25px;
+color:#00e0ff;
+text-shadow:0 0 10px #00e0ff;
+}
+
+/* SUCCESS MESSAGE */
+.success-msg{
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+background:#00c853;
+padding:12px 25px;
+border-radius:30px;
+display:none;
+z-index:2000;
+box-shadow:0 0 20px #00ffcc;
+}
+
+/* ADMIN BUTTON */
+.admin-btn{
+position:fixed;
+top:15px;
+right:15px;
+background:linear-gradient(45deg,#00e0ff,#00ffcc);
+border:none;
+padding:10px 18px;
+border-radius:25px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 0 15px #00ffcc;
 }
 
 /* ADMIN PANEL */
 .admin-panel{
 position:fixed;
-top:15px;
+top:70px;
 right:15px;
-background:linear-gradient(45deg,#000,#0d1b3d);
-padding:12px;
-border-radius:15px;
-z-index:999;
-text-align:center;
-box-shadow:0 0 20px #00ffcc;
-}
-
-.admin-panel button{
-background:#00ffcc;
-border:none;
-padding:8px 20px;
-border-radius:25px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.admin-status{
-margin-top:8px;
-padding:6px 12px;
-background:#00ffcc;
-color:black;
-border-radius:20px;
-font-size:12px;
-display:none;
-}
-
-/* PRODUCTS */
-.section{margin-bottom:40px;}
-.section h2{color:#00e0ff;}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
-
-.card{
 background:#0d1b3d;
 padding:15px;
 border-radius:15px;
-border:2px solid #00ffcc;
+display:none;
+box-shadow:0 0 20px #00e0ff;
+z-index:1000;
+}
+
+/* SECTION */
+.section{margin-bottom:40px;}
+.section h2{
+color:#00e0ff;
+border-left:4px solid #00ffcc;
+padding-left:10px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+}
+
+/* CARD */
+.card{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(8px);
+padding:15px;
+border-radius:20px;
+border:1px solid rgba(255,255,255,0.2);
 text-align:center;
+box-shadow:0 0 10px rgba(0,255,255,0.2);
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.03);
+box-shadow:0 0 20px #00ffcc;
 }
 
 .price{
 color:#00ffcc;
 font-weight:bold;
+margin-top:5px;
 cursor:pointer;
-margin:8px 0;
 }
 
+/* COUNTER */
 .counter{
 display:flex;
 justify-content:center;
@@ -74,13 +112,13 @@ margin-top:10px;
 }
 
 .counter button{
-width:30px;
-height:30px;
+width:32px;
+height:32px;
 border:none;
 border-radius:50%;
 background:#00c2d1;
 color:white;
-font-weight:bold;
+font-size:18px;
 cursor:pointer;
 }
 
@@ -90,20 +128,20 @@ position:fixed;
 bottom:10px;
 left:10px;
 right:10px;
-background:#000;
+background:rgba(0,0,0,0.9);
 border-radius:30px;
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:15px;
-box-shadow:0 0 10px #00ffcc;
+box-shadow:0 0 20px #00e0ff;
 }
 
 .next-btn{
-background:#00ffcc;
+background:linear-gradient(45deg,#00ffcc,#00e0ff);
 border:none;
-padding:10px 30px;
-border-radius:30px;
+padding:10px 25px;
+border-radius:25px;
 font-weight:bold;
 cursor:pointer;
 }
@@ -111,9 +149,20 @@ cursor:pointer;
 </head>
 <body>
 
-<div class="admin-panel">
-<button onclick="adminLogin()">ADMIN</button>
-<div class="admin-status" id="adminStatus">ADMIN PANEL ON</div>
+<div class="header">🔥 KAVIYA OFFICIAL STORE 🔥</div>
+
+<div class="success-msg" id="successMsg">
+Price Changed Successfully ✅
+</div>
+
+<button class="admin-btn" onclick="adminLogin()">ADMIN</button>
+
+<div class="admin-panel" id="adminPanel">
+<h3>Admin Panel Active 🔥</h3>
+<button onclick="logoutAdmin()" 
+style="margin-top:10px;background:red;border:none;padding:8px 15px;border-radius:20px;color:white;cursor:pointer;">
+Logout
+</button>
 </div>
 
 <div id="products"></div>
@@ -126,54 +175,102 @@ cursor:pointer;
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyAiZ-Tu007FfvaD-1xn4O6FpkBhijLQRA0",
 authDomain: "nish-store.firebaseapp.com",
 databaseURL: "https://nish-store-default-rtdb.asia-southeast1.firebasedatabase.app",
 projectId: "nish-store",
-storageBucket: "nish-store.appspot.com",
+storageBucket: "nish-store.firebasestorage.app",
 messagingSenderId: "391397321336",
 appId: "1:391397321336:web:d42bd399532e0b611f1b8d"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const packagesRef = ref(db,"packages");
+const sectionsRef = ref(db,"packages");
 
+const ADMIN_PASS="Nish678@";
 let adminMode=false;
 let cart={};
-let sections=[];
 
-window.adminLogin=function(){
-let pass=prompt("Enter Admin Password");
-if(pass==="Nish678@"){
-adminMode=true;
-document.getElementById("adminStatus").style.display="block";
-alert("Admin Login Successful ✅");
+/* DEFAULT DATA */
+const defaultData=[
+
+{
+title:"MEMBERSHIP",
+items:[
+["WEEKLY LITE MEMBERSHIP",130],
+["WEEKLY MEMBERSHIP",520],
+["MONTHLY MEMBERSHIP",2560],
+["VIP MEMBERSHIP",3080],
+["VIP PLUS MEMBERSHIP",3210],
+["S VIP MEMBERSHIP",4640],
+["S VIP PLUS MEMBERSHIP",5160]
+]
+},
+
+{
+title:"DAIOMED PACK",
+items:[
+["25 💎",100],["50 💎",200],["75 💎",300],["100 💎",400],
+["150 💎",600],["200 💎",800],["310 💎",950],["350 💎",1400],
+["520 💎",1580],["830 💎",2530],["1060 💎",3020],
+["2180 💎",6020],["3240 💎",9040],["5600 💎",14700],
+["6660 💎",17720],["8840 💎",23740],["11500 💎",31000],
+["15500 💎",41460],["23000 💎",61000],["46000 💎",124000]
+]
+},
+
+{
+title:"LEVEL UP PASS PACKAGE",
+items:[
+["LEVEL 6",180],
+["LEVEL 10",300],
+["LEVEL 15",300],
+["LEVEL 25",300],
+["LEVEL 30",450]
+]
+},
+
+{
+title:"EVO ACCESS PACKAGE",
+items:[
+["EVO ACCESS — 3 DAY",200],
+["EVO ACCESS — 7 DAY",350],
+["EVO ACCESS — 30 DAY",900]
+]
+}
+
+];
+
+/* LOAD OR SET DEFAULT */
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+if(data){
+render(data);
 }else{
-alert("Wrong Password ❌");
+set(sectionsRef,defaultData);
 }
-}
-
-onValue(packagesRef,(snapshot)=>{
-sections=snapshot.val();
-render();
 });
 
-function render(){
+/* RENDER */
+function render(sections){
 let container=document.getElementById("products");
 container.innerHTML="";
 let index=0;
 
 sections.forEach((section,sIndex)=>{
 container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
+
 section.items.forEach((item,iIndex)=>{
 container.innerHTML+=`
 <div class="card">
 <h4>${item[0]}</h4>
-<div class="price" onclick="editPrice(${sIndex},${iIndex})">LKR ${item[1]}</div>
+<div class="price" onclick="editPrice(${sIndex},${iIndex})">
+LKR ${item[1]}
+</div>
 <div class="counter">
 <button onclick="change(${index},-1)">-</button>
 <span id="q${index}">0</span>
@@ -183,20 +280,48 @@ container.innerHTML+=`
 cart[index]=0;
 index++;
 });
+
 container.innerHTML+=`</div></div>`;
 });
 }
 
-window.editPrice=function(sIndex,iIndex){
-if(!adminMode) return;
-let newPrice=prompt("New Price:");
-if(newPrice && !isNaN(newPrice)){
-sections[sIndex].items[iIndex][1]=parseInt(newPrice);
-update(ref(db,"packages/"+sIndex+"/items/"+iIndex), sections[sIndex].items[iIndex]);
-alert("Price Updated for All Devices ✅");
+/* ADMIN */
+window.adminLogin=function(){
+let pass=prompt("Enter Admin Password");
+if(pass===ADMIN_PASS){
+adminMode=true;
+document.getElementById("adminPanel").style.display="block";
+}else{
+alert("Wrong Password");
 }
 }
 
+window.logoutAdmin=function(){
+adminMode=false;
+document.getElementById("adminPanel").style.display="none";
+}
+
+/* EDIT PRICE */
+window.editPrice=function(sIndex,iIndex){
+if(!adminMode) return;
+let newPrice=prompt("Enter new price:");
+if(newPrice && !isNaN(newPrice)){
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data[sIndex].items[iIndex][1]=parseInt(newPrice);
+set(sectionsRef,data);
+showSuccess();
+},{onlyOnce:true});
+}
+}
+
+function showSuccess(){
+let msg=document.getElementById("successMsg");
+msg.style.display="block";
+setTimeout(()=>{msg.style.display="none";},2000);
+}
+
+/* CART */
 window.change=function(i,val){
 let q=document.getElementById("q"+i);
 let qty=parseInt(q.innerText);
@@ -210,40 +335,25 @@ updateTotal();
 function updateTotal(){
 let total=0;
 let index=0;
-sections.forEach(section=>{
+
+onValue(sectionsRef,(snap)=>{
+let data=snap.val();
+data.forEach(section=>{
 section.items.forEach(item=>{
 total+=cart[index]*item[1];
 index++;
 });
 });
 document.getElementById("total").innerText="Total: "+total+" LKR";
+},{onlyOnce:true});
 }
 
 window.goCheckout=function(){
-let selected=[];
-let index=0;
-sections.forEach(section=>{
-section.items.forEach(item=>{
-if(cart[index]>0){
-selected.push({
-name:item[0],
-price:item[1],
-qty:cart[index]
-});
-}
-index++;
-});
-});
-
-if(selected.length===0){
-alert("Please select packages ❗");
-return;
-}
-
-localStorage.setItem("orderItems",JSON.stringify(selected));
+localStorage.setItem("checkoutItems",JSON.stringify(cart));
 window.location.href="checkout.html";
 }
 
 </script>
+
 </body>
 </html>
