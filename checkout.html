@@ -149,13 +149,21 @@ btn.innerText="ORDER SENDING";
 }
 
 function contactAdmin(){
-let fullMessage =  
-"🛒 ORDER CONFIRMATION\n\n"+  
-"🆔 Order ID: "+lastOrderId+"\n"+  
-"👤 Name: "+name+"\n"+  
-"🎮 Player ID: "+id+"\n"+  
-"📲 Customer WhatsApp: "+wp+"\n\n"
-window.open("https://wa.me/"+adminNumber+"?text="+encodeURIComponent(msg),"_blank");
+
+let name=document.getElementById("playerName").value.trim();
+let id=document.getElementById("playerId").value.trim();
+let wp=document.getElementById("whatsapp").value.trim();
+
+let fullMessage =
+"🛒 *ORDER CONFIRMATION*\n\n"+
+"🆔 Order ID: "+lastOrderId+"\n"+
+"👤 Name: "+name+"\n"+
+"🎮 Player ID: "+id+"\n"+
+"📲 Customer WhatsApp: "+wp+"\n";
+
+window.location.href =
+"https://wa.me/94762514994?text="+encodeURIComponent(fullMessage);
+
 }
 
 </script>
