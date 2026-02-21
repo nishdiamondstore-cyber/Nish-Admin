@@ -14,7 +14,6 @@ padding:15px;
 padding-bottom:140px;
 }
 
-/* ADMIN PANEL */
 .admin-panel{
 position:fixed;
 top:10px;
@@ -42,7 +41,6 @@ color:#00ff00;
 display:none;
 }
 
-/* SECTIONS */
 .section{margin-bottom:40px;}
 .section h2{color:#00e0ff;}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
@@ -53,12 +51,6 @@ padding:15px;
 border-radius:15px;
 border:2px solid white;
 text-align:center;
-transition:0.3s;
-}
-
-.card:hover{
-transform:scale(1.05);
-border-color:#00ffff;
 }
 
 .price{
@@ -85,7 +77,6 @@ font-weight:bold;
 cursor:pointer;
 }
 
-/* BOTTOM BAR */
 .bottom-bar{
 position:fixed;
 bottom:10px;
@@ -112,7 +103,6 @@ cursor:pointer;
 </head>
 <body>
 
-<!-- ADMIN PANEL -->
 <div class="admin-panel">
 <button onclick="adminLogin()">Admin Login</button>
 <div class="admin-status" id="adminStatus">ADMIN MODE ON</div>
@@ -128,7 +118,7 @@ cursor:pointer;
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyAiZ-Tu007FfvaD-1xn4O6FpkBhijLQRA0",
@@ -251,14 +241,13 @@ container.innerHTML+=`</div></div>`;
 
 window.editPrice=function(sIndex,iIndex){
 if(!adminMode) return;
-
 let newPrice=prompt("Enter new price:");
 if(newPrice && !isNaN(newPrice)){
-onValue(sectionsRef,(snap)=>{
+get(sectionsRef).then((snap)=>{
 let data=snap.val();
 data[sIndex].items[iIndex][1]=parseInt(newPrice);
 set(sectionsRef,data);
-},{onlyOnce:true});
+});
 }
 }
 
@@ -276,7 +265,7 @@ function updateTotal(){
 let total=0;
 let index=0;
 
-onValue(sectionsRef,(snap)=>{
+get(sectionsRef).then((snap)=>{
 let data=snap.val();
 data.forEach(section=>{
 section.items.forEach(item=>{
@@ -285,7 +274,7 @@ index++;
 });
 });
 document.getElementById("total").innerText="Total: "+total+" LKR";
-},{onlyOnce:true});
+});
 }
 
 window.goCheckout=function(){
@@ -295,7 +284,7 @@ let index=0;
 let membershipSelected=false;
 let daiomedSelected=false;
 
-onValue(sectionsRef,(snap)=>{
+get(sectionsRef).then((snap)=>{
 let data=snap.val();
 
 data.forEach((section,sIndex)=>{
@@ -326,7 +315,7 @@ return;
 localStorage.setItem("checkoutItems",JSON.stringify(selected));
 window.location.href="checkout.html";
 
-},{onlyOnce:true});
+});
 }
 
 </script>
