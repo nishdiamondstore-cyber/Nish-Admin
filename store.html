@@ -239,13 +239,15 @@ items:[
 
 ];
 
-/* LOAD */
+/* LOAD - FIXED */
 onValue(sectionsRef,(snap)=>{
-let data=snap.val();
+let data = snap.val();
+
 if(data){
-render(data);
+    render(data);
 }else{
-set(sectionsRef,defaultData);
+    render(defaultData);   // 👈 meka add kara
+    set(sectionsRef,defaultData);
 }
 });
 
