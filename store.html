@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Packages</title>
+<title>KAVIYA PACKAGES</title>
 
 <style>
 body{
@@ -25,20 +25,26 @@ border-radius:15px;
 z-index:999;
 text-align:center;
 box-shadow:0 0 15px #00ffcc;
+animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+from{box-shadow:0 0 10px #00ffcc;}
+to{box-shadow:0 0 25px #00ffcc;}
 }
 
 .admin-panel button{
 background:#00ffcc;
 border:none;
-padding:8px 18px;
-border-radius:20px;
+padding:8px 20px;
+border-radius:25px;
 font-weight:bold;
 cursor:pointer;
 }
 
 .admin-status{
 margin-top:8px;
-padding:5px 10px;
+padding:6px 12px;
 background:#00ffcc;
 color:black;
 border-radius:20px;
@@ -57,13 +63,13 @@ padding:15px;
 border-radius:15px;
 border:2px solid #00ffcc;
 text-align:center;
-box-shadow:0 0 10px rgba(0,255,204,0.3);
 }
 
 .price{
 color:#00ffcc;
 font-weight:bold;
 cursor:pointer;
+margin:8px 0;
 }
 
 .counter{
@@ -81,6 +87,7 @@ border-radius:50%;
 background:#00c2d1;
 color:white;
 font-weight:bold;
+cursor:pointer;
 }
 
 /* BOTTOM BAR */
@@ -101,13 +108,13 @@ box-shadow:0 0 10px #00ffcc;
 .next-btn{
 background:#00ffcc;
 border:none;
-padding:10px 25px;
-border-radius:25px;
+padding:10px 30px;
+border-radius:30px;
 font-weight:bold;
 cursor:pointer;
 }
 
-/* CUSTOM POPUP */
+/* POPUP */
 .popup{
 position:fixed;
 top:50%;
@@ -141,7 +148,7 @@ cursor:pointer;
 <body>
 
 <div class="admin-panel">
-<button onclick="adminLogin()">ADMIN</button>
+<button onclick="adminLogin()">ADMIN LOGIN</button>
 <div class="admin-status" id="adminStatus">ADMIN PANEL ON</div>
 </div>
 
@@ -157,61 +164,24 @@ cursor:pointer;
 <button onclick="closePopup()">OK</button>
 </div>
 
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyAiZ-Tu007FfvaD-1xn4O6FpkBhijLQRA0",
-authDomain: "nish-store.firebaseapp.com",
-databaseURL: "https://nish-store-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId: "nish-store",
-storageBucket: "nish-store.firebasestorage.app",
-messagingSenderId: "391397321336",
-appId: "1:391397321336:web:d42bd399532e0b611f1b8d"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+<script>
 
 const ADMIN_PASS="Nish678@";
 let adminMode=false;
 
-function showPopup(message){
-document.getElementById("popupText").innerText=message;
-document.getElementById("popupBox").classList.add("show");
-}
-
-window.closePopup=function(){
-document.getElementById("popupBox").classList.remove("show");
-}
-
-window.adminLogin=function(){
-let pass=prompt("Enter Admin Password");
-if(pass===ADMIN_PASS){
-adminMode=true;
-document.getElementById("adminStatus").style.display="block";
-showPopup("Login Successfully ✅");
-}else{
-showPopup("Wrong Password ❌");
-}
-}
-
-let sectionsRef = ref(db,"packages");
-
-const defaultData=[
-
+const sections = [
 {
 title:"MEMBERSHIP",
 items:[
 ["WEEKLY LITE MEMBERSHIP",130],
 ["WEEKLY MEMBERSHIP",520],
 ["MONTHLY MEMBERSHIP",2560],
-["VIP MEMBERSHIP",3080]
+["VIP MEMBERSHIP",3080],
+["VIP PLUS MEMBERSHIP",3210],
+["S VIP MEMBERSHIP",4640],
+["S VIP PLUS MEMBERSHIP",5160]
 ]
 },
-
 {
 title:"DAIOMED PACK",
 items:[
@@ -223,7 +193,6 @@ items:[
 ["23000 💎",61000],["46000 💎",124000]
 ]
 },
-
 {
 title:"LEVEL UP PASS PACKAGE",
 items:[
@@ -231,78 +200,67 @@ items:[
 ["LEVEL 10",300],
 ["LEVEL 15",300],
 ["LEVEL 25",300],
-["LEVEL 25",300],
 ["LEVEL 30",450]
 ]
 },
-
 {
 title:"EVO ACCESS PACKAGE",
 items:[
-["EVO ACCESS — 3 DAY",200],
-["EVO ACCESS — 7 DAY",350],
-["EVO ACCESS — 30 DAY",900]
+["EVO ACCESS - 3 DAY",200],
+["EVO ACCESS - 7 DAY",350],
+["EVO ACCESS - 30 DAY",900]
 ]
 }
-
 ];
-
-onValue(sectionsRef,(snapshot)=>{
-let data=snapshot.val();
-if(data){
-render(data);
-}else{
-set(sectionsRef,defaultData);
-}
-});
 
 let cart={};
 
-function render(sections){
+function render(){
 let container=document.getElementById("products");
-container.innerHTML="";
 let index=0;
-
 sections.forEach((section,sIndex)=>{
 container.innerHTML+=`<div class="section"><h2>${section.title}</h2><div class="grid">`;
-
 section.items.forEach((item,iIndex)=>{
 container.innerHTML+=`
 <div class="card">
 <h4>${item[0]}</h4>
-<div class="price" onclick="editPrice(${sIndex},${iIndex})">
-LKR ${item[1]}
-</div>
+<div class="price" onclick="editPrice(${sIndex},${iIndex})">LKR ${item[1]}</div>
 <div class="counter">
 <button onclick="change(${index},-1)">-</button>
 <span id="q${index}">0</span>
 <button onclick="change(${index},1)">+</button>
 </div>
-</div>
-`;
+</div>`;
 cart[index]=0;
 index++;
 });
-
 container.innerHTML+=`</div></div>`;
 });
 }
 
-window.editPrice=function(sIndex,iIndex){
-if(!adminMode) return;
+function adminLogin(){
+let pass=prompt("Enter Admin Password");
+if(pass===ADMIN_PASS){
+adminMode=true;
+document.getElementById("adminStatus").style.display="block";
+showPopup("Login Successfully ✅");
+}else{
+showPopup("Wrong Password ❌");
+}
+}
 
+function editPrice(sIndex,iIndex){
+if(!adminMode) return;
 let newPrice=prompt("Enter new price:");
 if(newPrice && !isNaN(newPrice)){
-onValue(sectionsRef,(snap)=>{
-let data=snap.val();
-data[sIndex].items[iIndex][1]=parseInt(newPrice);
-set(sectionsRef,data);
-showPopup("Price Changed Successfully ✅");
-},{onlyOnce:true});
+sections[sIndex].items[iIndex][1]=parseInt(newPrice);
+document.getElementById("products").innerHTML="";
+render();
+showPopup("Price Updated Successfully ✅");
 }
 }
 
-window.change=function(i,val){
+function change(i,val){
 let q=document.getElementById("q"+i);
 let qty=parseInt(q.innerText);
 qty+=val;
@@ -315,43 +273,37 @@ updateTotal();
 function updateTotal(){
 let total=0;
 let index=0;
-
-onValue(sectionsRef,(snap)=>{
-let data=snap.val();
-data.forEach(section=>{
+sections.forEach(section=>{
 section.items.forEach(item=>{
 total+=cart[index]*item[1];
 index++;
 });
 });
 document.getElementById("total").innerText="Total: "+total+" LKR";
-},{onlyOnce:true});
 }
 
-window.goCheckout=function(){
-
-let membershipSelected=false;
-let index=0;
-
-onValue(sectionsRef,(snap)=>{
-let data=snap.val();
-
-data[0].items.forEach(item=>{
-if(cart[index] > 0){
-membershipSelected=true;
+function goCheckout(){
+let any=false;
+for(let key in cart){
+if(cart[key]>0){ any=true; break; }
 }
-index++;
-});
-
-if(!membershipSelected){
-showPopup("Please select Membership package ❗");
+if(!any){
+showPopup("Please select packages ❗");
 return;
 }
-
 window.location.href="checkout.html";
-
-},{onlyOnce:true});
 }
+
+function showPopup(msg){
+document.getElementById("popupText").innerText=msg;
+document.getElementById("popupBox").classList.add("show");
+}
+
+function closePopup(){
+document.getElementById("popupBox").classList.remove("show");
+}
+
+render();
 
 </script>
 
