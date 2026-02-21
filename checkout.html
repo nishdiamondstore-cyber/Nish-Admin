@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+i<!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -149,7 +149,12 @@ btn.innerText="ORDER SENDING";
 }
 
 function contactAdmin(){
-let msg="🛒 ORDER ID: "+lastOrderId;
+let fullMessage =  
+"🛒 ORDER CONFIRMATION\n\n"+  
+"🆔 Order ID: "+lastOrderId+"\n"+  
+"👤 Name: "+name+"\n"+  
+"🎮 Player ID: "+id+"\n"+  
+"📲 Customer WhatsApp: "+wp+"\n\n"
 window.open("https://wa.me/"+adminNumber+"?text="+encodeURIComponent(msg),"_blank");
 }
 
