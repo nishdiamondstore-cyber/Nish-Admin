@@ -10,8 +10,6 @@ h2{text-align:center;}
 .box{background:#111;padding:15px;border-radius:14px;margin:12px 0;
 box-shadow:0 0 15px rgba(0,150,255,0.2);border:1px solid #1f1f1f;}
 .total{color:#00e5ff;font-weight:bold;text-align:right;font-size:18px;}
-.bank-card{background:#0f0f0f;padding:25px;margin:20px 0;border-radius:20px;
-border:1px solid #00c3ff;box-shadow:0 0 15px rgba(0,195,255,0.4);}
 button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:12px;
 font-size:16px;font-weight:bold;cursor:pointer;
 background:linear-gradient(90deg,#00c6ff,#0072ff);color:white;}
@@ -23,7 +21,6 @@ background:#1a1a1a;color:white;}
 transform:translate(-50%,-50%);background:#111;padding:25px;border-radius:15px;
 border:1px solid #00ff99;box-shadow:0 0 25px rgba(0,255,150,0.6);
 text-align:center;z-index:999;}
-#successBox h3{color:#00ff99;margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -33,12 +30,13 @@ text-align:center;z-index:999;}
 <div id="summary"></div>
 <div class="box total" id="total"></div>
 
-<div class="bank-card">
-<h3>🏦 EZ CASH</h3>
-<p><strong>EZ No:</strong> 0761723419</p>
+<div class="box">
+🏦 <b>EZ CASH</b><br>
+EZ No: 0761723419
 </div>
 
 <div class="box">
+
 Player Name
 <input type="text" id="playerName">
 
@@ -59,36 +57,35 @@ EZ Cash ගෙවීමේදී රු.20 වැඩියෙන් දැමී
 </div>
 
 <button id="contactBtn" onclick="contactAdmin()">CONTACT ADMIN</button>
+
 </div>
 
 <div id="successBox">
 <h3>✅ Order Sent Successfully!</h3>
-<p>Your Order ID:</p>
-<p id="orderDisplay" style="font-weight:bold;"></p>
+<p id="orderDisplay"></p>
 </div>
 
 <script>
 
-let cart = JSON.parse(localStorage.getItem("cart"))||{};
-let items = JSON.parse(localStorage.getItem("items"))||[];
-let summary=document.getElementById("summary");
-let total=0;
+/* LOAD SELECTED ITEMS */
+let checkoutItems = JSON.parse(localStorage.getItem("checkoutItems")) || [];
+let total = parseInt(localStorage.getItem("checkoutTotal")) || 0;
 
-for(let i in cart){
-if(cart[i]>0){
+let summary=document.getElementById("summary");
+
+checkoutItems.forEach(item=>{
 let line=document.createElement("div");
 line.className="box";
-line.innerHTML=items[i][0]+" x "+cart[i]+" — "+(items[i][1]*cart[i])+" LKR";
+line.innerHTML=`${item.name} x ${item.qty} = ${item.price*item.qty} LKR`;
 summary.appendChild(line);
-total+=items[i][1]*cart[i];
-}
-}
+});
 
 document.getElementById("total").innerText="TOTAL: "+total+" LKR";
 
+let adminNumber="94762514994";
 let lastOrderId="";
-let adminNumber="94762514994"; // ✅ UPDATED ADMIN NUMBER
 
+/* SEND TO TELEGRAM */
 async function sendToTelegram(){
 
 let name=document.getElementById("playerName").value.trim();
@@ -106,7 +103,6 @@ alert("Upload receipt!");
 return;
 }
 
-/* Convert WhatsApp number */
 if(wp.startsWith("0")){
 wp="94"+wp.substring(1);
 }
@@ -121,17 +117,14 @@ let message=
 "🎮 Player ID: "+id+"\n"+
 "📲 Customer WhatsApp: https://wa.me/"+wp+"\n\n";
 
-for(let i in cart){
-if(cart[i]>0){
-message+=items[i][0]+" x "+cart[i]+" = "+(items[i][1]*cart[i])+" LKR\n";
-}
-}
+checkoutItems.forEach(item=>{
+message+=`${item.name} x ${item.qty} = ${item.price*item.qty} LKR\n`;
+});
 
 message+="\n💰 Total: "+total+" LKR (+20 EZ Fee)";
 
-/* === TELEGRAM SEND (PUT REAL TOKEN) === */
-let botToken="8450708390:AAFXeI6NjGc_2xPzuShSRx0FOelfs7LrZC0";
-let chatId="8300102049";
+let botToken="YOUR_BOT_TOKEN";
+let chatId="YOUR_CHAT_ID";
 
 let formData=new FormData();
 formData.append("chat_id",chatId);
@@ -143,17 +136,18 @@ method:"POST",
 body:formData
 });
 
-/* Success Popup */
-document.getElementById("orderDisplay").innerText=orderId;
+/* SUCCESS */
+document.getElementById("orderDisplay").innerText="Order ID: "+orderId;
 document.getElementById("successBox").style.display="block";
+document.getElementById("contactBtn").style.display="block";
 
 setTimeout(()=>{
 document.getElementById("successBox").style.display="none";
 },3000);
 
-document.getElementById("contactBtn").style.display="block";
 }
 
+/* WHATSAPP SEND */
 function contactAdmin(){
 
 let name=document.getElementById("playerName").value.trim();
@@ -171,18 +165,15 @@ let fullMessage=
 "🎮 Player ID: "+id+"\n"+
 "📲 Customer WhatsApp: https://wa.me/"+wp+"\n\n";
 
-for(let i in cart){
-if(cart[i]>0){
-fullMessage+=items[i][0]+" x "+cart[i]+" = "+(items[i][1]*cart[i])+" LKR\n";
-}
-}
+checkoutItems.forEach(item=>{
+fullMessage+=`${item.name} x ${item.qty} = ${item.price*item.qty} LKR\n`;
+});
 
 fullMessage+="\n💰 *Total:* "+total+" LKR (+20 EZ Fee)";
 
-navigator.clipboard.writeText(lastOrderId);
-
 window.location.href=
 "https://wa.me/"+adminNumber+"?text="+encodeURIComponent(fullMessage);
+
 }
 
 </script>
