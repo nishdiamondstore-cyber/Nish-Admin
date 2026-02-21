@@ -118,7 +118,7 @@ cursor:pointer;
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "YOUR_API_KEY",
@@ -157,10 +157,7 @@ items:[
 ["WEEKLY LITE MEMBERSHIP",130],
 ["WEEKLY MEMBERSHIP",520],
 ["MONTHLY MEMBERSHIP",2560],
-["VIP MEMBERSHIP",3080],
-["VIP PLUS MEMBERSHIP",3210],
-["S VIP MEMBERSHIP",4640],
-["S VIP PLUS MEMBERSHIP",5160]
+["VIP MEMBERSHIP",3080]
 ]
 },
 
@@ -177,8 +174,7 @@ items:[
 ["LEVEL 6",180],
 ["LEVEL 10",300],
 ["LEVEL 15",300],
-["LEVEL 25",300],
-["LEVEL 30",450]
+["LEVEL 25",300]
 ]
 },
 
@@ -274,7 +270,6 @@ window.goCheckout=function(){
 let selected=[];
 let index=0;
 let membershipSelected=false;
-let daiomedSelected=false;
 
 currentData.forEach((section,sIndex)=>{
 section.items.forEach(item=>{
@@ -285,19 +280,13 @@ price:item[1],
 qty:cart[index]
 });
 if(sIndex===0) membershipSelected=true;
-if(sIndex===1) daiomedSelected=true;
 }
 index++;
 });
 });
 
-if(membershipSelected && !daiomedSelected){
-alert("Please select Daiomed Package");
-return;
-}
-
-if(selected.length===0){
-alert("Please select at least one package");
+if(!membershipSelected){
+alert("Please select Membership Package");
 return;
 }
 
