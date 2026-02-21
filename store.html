@@ -305,13 +305,30 @@ document.getElementById("total").innerText="Total: "+total+" LKR";
 }
 
 window.goCheckout=function(){
+
 let finalItems=[];
+let total=0;
+
 productMap.forEach((p,i)=>{
 if(cart[i]>0){
-finalItems.push({name:p.name,price:p.price,qty:cart[i]});
+finalItems.push({
+name:p.name,
+price:p.price,
+qty:cart[i]
+});
+total+=p.price*cart[i];
 }
 });
+
+if(finalItems.length===0){
+alert("Select at least one package!");
+return;
+}
+
 localStorage.setItem("checkoutItems",JSON.stringify(finalItems));
+localStorage.setItem("checkoutTotal",total);
+localStorage.setItem("cart",JSON.stringify(cart));
+
 window.location.href="checkout.html";
 }
 
