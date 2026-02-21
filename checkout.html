@@ -8,12 +8,12 @@
 body{
 margin:0;
 font-family:Arial;
-background:linear-gradient(to bottom,#000,#0a0f1f);
+background:#000;
 color:white;
 padding:15px;
 }
 
-h2{text-align:center;color:#00e5ff;}
+h2{text-align:center;}
 
 .box{
 background:#111;
@@ -24,28 +24,11 @@ box-shadow:0 0 15px rgba(0,150,255,0.2);
 border:1px solid #1f1f1f;
 }
 
-.item-line{
-display:flex;
-justify-content:space-between;
-font-size:14px;
-margin-top:5px;
-}
-
 .total{
 color:#00e5ff;
 font-weight:bold;
 text-align:right;
 font-size:18px;
-}
-
-.bank-card{
-background:#0f0f0f;
-padding:25px;
-margin:20px 0;
-border-radius:20px;
-border:1px solid #00c3ff;
-box-shadow:0 0 20px rgba(0,195,255,0.5);
-text-align:center;
 }
 
 button{
@@ -62,8 +45,8 @@ color:white;
 transition:0.3s;
 }
 
-button:hover{
-transform:scale(1.03);
+button:disabled{
+opacity:0.6;
 }
 
 #contactBtn{
@@ -88,7 +71,6 @@ text-align:center;
 margin-top:8px;
 }
 
-/* SUCCESS POPUP */
 #successBox{
 display:none;
 position:fixed;
@@ -96,39 +78,28 @@ top:50%;
 left:50%;
 transform:translate(-50%,-50%);
 background:#111;
-padding:30px;
-border-radius:20px;
-border:2px solid #00ff99;
-box-shadow:0 0 30px rgba(0,255,150,0.7);
+padding:25px;
+border-radius:15px;
+border:1px solid #00ff99;
+box-shadow:0 0 25px rgba(0,255,150,0.6);
 text-align:center;
 z-index:999;
-animation:pop 0.4s ease;
-}
-
-@keyframes pop{
-from{transform:translate(-50%,-50%) scale(0.5);opacity:0;}
-to{transform:translate(-50%,-50%) scale(1);opacity:1;}
-}
-
-.success-icon{
-font-size:40px;
-color:#00ff99;
 }
 </style>
 </head>
 <body>
 
-<h2>🛒 ORDER SUMMARY</h2>
+<h2>PAYMENT DETAIL</h2>
 
 <div id="summary"></div>
 <div class="box total" id="total"></div>
 
 <div class="box">
-
-<div class="bank-card">
 <h3>🏦 EZ CASH</h3>
 <p><strong>EZ No:</strong> 0761723419</p>
 </div>
+
+<div class="box">
 
 Player Name
 <input type="text" id="playerName" placeholder="Enter Player Name">
@@ -143,7 +114,7 @@ WhatsApp Number
 📤 Upload Transfer Receipt
 <input type="file" id="receipt" accept="image/*">
 
-<button onclick="sendToTelegram()">ORDER SENDING</button>
+<button id="orderBtn" onclick="sendToTelegram()">ORDER SENDING</button>
 
 <div class="warning">
 EZ Cash ගෙවීමේදී රු.20 වැඩියෙන් දැමීම අනිවාරය වේ.
@@ -153,43 +124,39 @@ EZ Cash ගෙවීමේදී රු.20 වැඩියෙන් දැමී
 
 </div>
 
-<!-- SUCCESS POPUP -->
 <div id="successBox">
-<div class="success-icon">✅</div>
-<h3>Order Sent Successfully!</h3>
+<h3>✅ Order Sent Successfully!</h3>
 <p>Your Order ID:</p>
 <p id="orderDisplay" style="font-weight:bold;"></p>
 </div>
 
 <script>
 
-let items = JSON.parse(localStorage.getItem("checkoutItems")) || [];
+let cart = JSON.parse(localStorage.getItem("cart"))||{};
+let items = JSON.parse(localStorage.getItem("items"))||[];
 let summary=document.getElementById("summary");
 let total=0;
 
-if(items.length === 0){
-summary.innerHTML="<div class='box'>No Items Selected</div>";
-}else{
-items.forEach(item=>{
-let box=document.createElement("div");
-box.className="box";
-
-box.innerHTML=
-"<strong>"+item.name+"</strong>"+
-"<div class='item-line'><span>Qty: "+item.qty+"</span>"+
-"<span>"+(item.price*item.qty)+" LKR</span></div>";
-
-summary.appendChild(box);
-total+=item.price*item.qty;
-});
+for(let i in cart){
+if(cart[i]>0){
+let line=document.createElement("div");
+line.className="box";
+line.innerHTML=items[i][0]+" x "+cart[i]+" — "+(items[i][1]*cart[i])+" LKR";
+summary.appendChild(line);
+total+=items[i][1]*cart[i];
+}
 }
 
 document.getElementById("total").innerText="TOTAL: "+total+" LKR";
 
 let lastOrderId="";
-let adminNumber="94762514994"; // Your WhatsApp
+let adminNumber="94762514994";
 
 async function sendToTelegram(){
+
+let btn=document.getElementById("orderBtn");
+btn.innerText="Sending...";
+btn.disabled=true;
 
 let name=document.getElementById("playerName").value;
 let id=document.getElementById("playerId").value;
@@ -198,12 +165,21 @@ let receipt=document.getElementById("receipt");
 
 if(name==""||id==""||wp==""){
 alert("Fill all fields!");
+btn.disabled=false;
+btn.innerText="ORDER SENDING";
 return;
 }
 
 if(receipt.files.length==0){
 alert("Upload receipt!");
+btn.disabled=false;
+btn.innerText="ORDER SENDING";
 return;
+}
+
+/* Convert WhatsApp to international */
+if(wp.startsWith("0")){
+wp="94"+wp.substring(1);
 }
 
 let orderId="ORD"+Date.now();
@@ -214,54 +190,78 @@ let message=
 "🆔 Order ID: "+orderId+"\n"+
 "👤 Name: "+name+"\n"+
 "🎮 Player ID: "+id+"\n"+
-"📲 Customer WhatsApp: "+wp+"\n\n";
+"📲 Customer WhatsApp: https://wa.me/"+wp+"\n\n";
 
-items.forEach(item=>{
-message+=item.name+" x "+item.qty+" = "+(item.price*item.qty)+" LKR\n";
-});
+for(let i in cart){
+if(cart[i]>0){
+message+=items[i][0]+" x "+cart[i]+" = "+(items[i][1]*cart[i])+" LKR\n";
+}
+}
 
 message+="\n💰 Total: "+total+" LKR (+20 EZ Fee)";
 
-let botToken=""8450708390:AAFXeI6NjGc_2xPzuShSRx0FOelfs7LrZC0";
-let chatId="8300102049";
+let botToken="8580212739:AAEjsxZD99UqSOiU9goW8F0h2tNRDMNYi5Q";
+let chatId="7068554677";
 
 let formData=new FormData();
 formData.append("chat_id",chatId);
 formData.append("caption",message);
 formData.append("photo",receipt.files[0]);
 
-await fetch("https://api.telegram.org/bot"+botToken+"/sendPhoto",{
+let response=await fetch("https://api.telegram.org/bot"+botToken+"/sendPhoto",{
 method:"POST",
 body:formData
 });
+
+let result=await response.json();
+
+if(result.ok){
 
 document.getElementById("orderDisplay").innerText=orderId;
 document.getElementById("successBox").style.display="block";
 document.getElementById("contactBtn").style.display="block";
 
+localStorage.removeItem("cart");
+
 setTimeout(()=>{
 document.getElementById("successBox").style.display="none";
 },3000);
 
+}else{
+alert("Telegram Error!");
+}
+
+btn.disabled=false;
+btn.innerText="ORDER SENDING";
 }
 
 function contactAdmin(){
 
+let name=document.getElementById("playerName").value;
+let id=document.getElementById("playerId").value;
+let wp=document.getElementById("whatsapp").value;
+
 let fullMessage =
 "🛒 ORDER CONFIRMATION\n\n"+
-"🆔 Order ID: "+lastOrderId+"\n\n";
+"🆔 Order ID: "+lastOrderId+"\n"+
+"👤 Name: "+name+"\n"+
+"🎮 Player ID: "+id+"\n"+
+"📲 Customer WhatsApp: "+wp+"\n\n";
 
-items.forEach(item=>{
-fullMessage+=item.name+" x "+item.qty+" = "+(item.price*item.qty)+" LKR\n";
-});
+for(let i in cart){
+if(cart[i]>0){
+fullMessage+=items[i][0]+" x "+cart[i]+" = "+(items[i][1]*cart[i])+" LKR\n";
+}
+}
 
 fullMessage+="\n💰 Total: "+total+" LKR (+20 EZ Fee)";
+
+navigator.clipboard.writeText(lastOrderId);
 
 window.open(
 "https://wa.me/"+adminNumber+"?text="+encodeURIComponent(fullMessage),
 "_blank"
 );
-
 }
 
 </script>
